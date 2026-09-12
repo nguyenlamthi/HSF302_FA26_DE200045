@@ -35,9 +35,13 @@ public class Main {
 //        List<Employee> res = dao.findActiveAndSalaryGreaterThan(new BigDecimal("50000000"));
 //        System.out.println("So nhan vien active, luong > 10tr: " + res.size());
 
-        Employee e = dao.findById(1L);
-        e.setGender(Gender.OTHER);
-        e = dao.update(e);
-        System.out.println(e);
+//        Employee e = dao.findById(1L);
+//        e.setGender(Gender.OTHER);
+//        e = dao.update(e);
+//        System.out.println(e);
+
+        dao.delete(5L);
+        Employee check = dao.findById(5L);
+        System.out.println(check);
     }
 }
