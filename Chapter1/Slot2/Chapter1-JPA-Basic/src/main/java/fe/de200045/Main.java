@@ -13,35 +13,25 @@ public class Main {
     public static void main(String[] args) {
         EmployeeDAO dao = new EmployeeDAO();
 
+        System.out.println("===== CREATE =====");
         Employee emp = new Employee("Nguyen Van B", "b@example.com",
                 new BigDecimal("20000000"), Gender.FEMALE, LocalDate.of(2026, 2, 28));
-//        dao.save(emp);
-//        System.out.println("Da tao: " + emp);
+        dao.save(emp);
+        System.out.println("Da tao: " + emp);
 
-//        Employee found = dao.findById(1L);
-//        System.out.println(found);
+        System.out.println("\n===== READ =====");
+        Employee found = dao.findById(emp.getId());
+        System.out.println("Tim thay: " + found);
 
-//        List<Employee> result = dao.findAll();
-//        for (Employee e : result) {
-//            System.out.println(e);
-//        }
+        System.out.println("\n===== UPDATE =====");
+        found.setSalary(new BigDecimal("25000000"));
+        found = dao.update(found);
+        Employee afterUpdate = dao.findById(emp.getId());
+        System.out.println("Doc lai tu DB: " + afterUpdate);
 
-//        Employee found = dao.findByEmail("b@example.com");
-//        System.out.println("Tim email da ton tai: " + found);
-
-//        Employee notFound = dao.findByEmail("khongtontai@example.com");
-//        System.out.println("Tim email khong ton tai: " + notFound);
-
-//        List<Employee> res = dao.findActiveAndSalaryGreaterThan(new BigDecimal("50000000"));
-//        System.out.println("So nhan vien active, luong > 10tr: " + res.size());
-
-//        Employee e = dao.findById(1L);
-//        e.setGender(Gender.OTHER);
-//        e = dao.update(e);
-//        System.out.println(e);
-
-        dao.delete(5L);
-        Employee check = dao.findById(5L);
-        System.out.println(check);
+        System.out.println("\n===== DELETE =====");
+        dao.delete(emp.getId());
+        Employee check = dao.findById(emp.getId());
+        System.out.println("Doc lai sau khi xoa: " + check);
     }
 }
