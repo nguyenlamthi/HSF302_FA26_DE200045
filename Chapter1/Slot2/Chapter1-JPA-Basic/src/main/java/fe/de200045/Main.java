@@ -8,15 +8,26 @@ import jakarta.persistence.Persistence;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {
     public static void main(String[] args) {
         EmployeeDAO dao = new EmployeeDAO();
-        Employee emp = new Employee("Nguyen Van A", "a@example.com",
-                new BigDecimal("15000000"), Gender.MALE, LocalDate.of(2026, 1, 15));
-        dao.save(emp);
-        System.out.println("Da tao: " + emp);
+
+        // ===== CREATE =====
+        Employee emp = new Employee("Nguyen Van B", "b@example.com",
+                new BigDecimal("20000000"), Gender.FEMALE, LocalDate.of(2026, 2, 28));
+//        dao.save(emp);
+//        System.out.println("Da tao: " + emp);
+
+        // ===== READ =====
+        Employee found = dao.findById(1L);
+        System.out.println(found);
+//        List<Employee> result = dao.findAll();
+//        for (Employee e : result) {
+//            System.out.println(e);
+//        }
     }
 }
