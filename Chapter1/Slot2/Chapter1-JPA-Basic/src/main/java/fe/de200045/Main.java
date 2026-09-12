@@ -32,7 +32,12 @@ public class Main {
 //        Employee notFound = dao.findByEmail("khongtontai@example.com");
 //        System.out.println("Tim email khong ton tai: " + notFound);
 
-        List<Employee> res = dao.findActiveAndSalaryGreaterThan(new BigDecimal("50000000"));
-        System.out.println("So nhan vien active, luong > 10tr: " + res.size());
+//        List<Employee> res = dao.findActiveAndSalaryGreaterThan(new BigDecimal("50000000"));
+//        System.out.println("So nhan vien active, luong > 10tr: " + res.size());
+
+        Employee e = dao.findById(1L);
+        e.setGender(Gender.OTHER);
+        e = dao.update(e);
+        System.out.println(e);
     }
 }
