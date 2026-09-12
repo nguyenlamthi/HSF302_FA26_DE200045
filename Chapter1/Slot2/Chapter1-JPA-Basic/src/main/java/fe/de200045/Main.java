@@ -3,9 +3,6 @@ package fe.de200045;
 import fe.de200045.dao.EmployeeDAO;
 import fe.de200045.entity.Employee;
 import fe.de200045.entity.Gender;
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.Persistence;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
@@ -16,18 +13,26 @@ public class Main {
     public static void main(String[] args) {
         EmployeeDAO dao = new EmployeeDAO();
 
-        // ===== CREATE =====
         Employee emp = new Employee("Nguyen Van B", "b@example.com",
                 new BigDecimal("20000000"), Gender.FEMALE, LocalDate.of(2026, 2, 28));
 //        dao.save(emp);
 //        System.out.println("Da tao: " + emp);
 
-        // ===== READ =====
-        Employee found = dao.findById(1L);
-        System.out.println(found);
+//        Employee found = dao.findById(1L);
+//        System.out.println(found);
+
 //        List<Employee> result = dao.findAll();
 //        for (Employee e : result) {
 //            System.out.println(e);
 //        }
+
+//        Employee found = dao.findByEmail("b@example.com");
+//        System.out.println("Tim email da ton tai: " + found);
+
+//        Employee notFound = dao.findByEmail("khongtontai@example.com");
+//        System.out.println("Tim email khong ton tai: " + notFound);
+
+        List<Employee> res = dao.findActiveAndSalaryGreaterThan(new BigDecimal("50000000"));
+        System.out.println("So nhan vien active, luong > 10tr: " + res.size());
     }
 }

@@ -10,7 +10,6 @@ public class EmployeeDAO {
     private static final EntityManagerFactory emf =
             Persistence.createEntityManagerFactory("hsf302FU");
 
-    // ---------- CREATE (TODO 0.3) ----------
     public void save(Employee e) {
         EntityManager em = emf.createEntityManager();
         try {
@@ -25,7 +24,6 @@ public class EmployeeDAO {
         }
     }
 
-    // ---------- READ (TODO 0.4) ----------
     public Employee findById(Long id) {
         EntityManager em = emf.createEntityManager();
         try {
@@ -39,6 +37,29 @@ public class EmployeeDAO {
         EntityManager em = emf.createEntityManager();
         try {
             return em.createQuery("SELECT e FROM Employee e", Employee.class).getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
+    public Employee findByEmail(String email) {
+        EntityManager em = emf.createEntityManager();
+        try {
+            List<Employee> result = em.createQuery("SELECT e FROM Employee e WHERE e.email = :email", Employee.class)
+                    .setParameter("email", email)
+                    .getResultList();
+            return result.isEmpty() ? null : result.getFirst();
+        } finally {
+            em.close();
+        }
+    }
+
+    public List<Employee> findActiveAndSalaryGreaterThan(BigDecimal minSalary) {
+        EntityManager em = emf.createEntityManager();
+        try {
+            return em.createQuery("SELECT e FROM Employee e WHERE e.active = true AND e.salary > :minSalary", Employee.class)
+                    .setParameter("minSalary", minSalary)
+                    .getResultList();
         } finally {
             em.close();
         }
