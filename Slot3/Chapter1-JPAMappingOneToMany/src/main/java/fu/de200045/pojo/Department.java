@@ -18,6 +18,10 @@ public class Department {
 
     private String location;
 
+    @OneToMany(mappedBy = "department",
+            cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Employee> employees = new ArrayList<>();
+
     public Department() {
     }
 
