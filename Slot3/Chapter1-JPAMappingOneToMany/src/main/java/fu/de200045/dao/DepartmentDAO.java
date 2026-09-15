@@ -78,4 +78,15 @@ public class DepartmentDAO {
             em.close();
         }
     }
+
+    public Department findByIdWithEmployees(Long id) {
+        EntityManager em = emf.createEntityManager();
+        try {
+            return em.createQuery("SELECT d FROM Department d LEFT JOIN FETCH d.employees WHERE d.id = :id", Department.class)
+                    .setParameter("id", id).getResultList().getFirst();
+
+        } finally {
+            em.close();
+        }
+    }
 }
