@@ -39,22 +39,21 @@ public class Department {
         this.name = name;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Department)) return false;
-        Department that = (Department) o;
-        return id != null && id.equals(that.id);
+    public String getLocation() {
+        return location;
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
+    public void setLocation(String location) {
+        this.location = location;
     }
 
     @Override
     public String toString() {
-        return "Department{id=" + id + ", name='" + name + "'}";
+        return "Department{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", location='" + location +
+                '}';
     }
 }
 
