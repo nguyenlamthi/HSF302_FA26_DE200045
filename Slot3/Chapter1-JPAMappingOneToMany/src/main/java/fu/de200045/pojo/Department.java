@@ -30,6 +30,16 @@ public class Department {
         this.location = location;
     }
 
+    public void addEmployee(Employee emp) {
+        employees.add(emp);
+        emp.setDepartment(this);
+    }
+
+    public void removeEmployee(Employee emp) {
+        employees.remove(emp);
+        emp.setDepartment(null);
+    }
+
     // ---- Getters / Setters ----
     public Long getId() {
         return id;
@@ -49,6 +59,14 @@ public class Department {
 
     public void setLocation(String location) {
         this.location = location;
+    }
+
+    public List<Employee> getEmployees() {
+        return employees;
+    }
+
+    public void setEmployees(List<Employee> employees) {
+        this.employees = employees;
     }
 
     @Override
