@@ -128,6 +128,21 @@ public class Employee {
         this.projects = projects;
     }
 
+    /**
+     * TODO 5.5 - Helper method để đồng bộ cả 2 chiều của quan hệ N-N.
+     *
+     * Vì Employee là owning side, chỉ add vào this.projects thì Hibernate
+     * sẽ lưu đúng xuống bảng employee_project. Tuy nhiên nếu không add
+     * ngược lại vào project.getEmployees(), thì object Project trong bộ nhớ
+     * (chưa refresh từ DB) sẽ "không biết" là đã có Employee này tham gia
+     * => project.getEmployees() sẽ thiếu dữ liệu nếu dùng ngay trong cùng
+     * transaction/session, dễ gây bug khó phát hiện.
+     */
+    public void assignToProject(Project p) {
+        this.projects.add(p);
+        p.getEmployees().add(this);
+    }
+
     /*
      * Không dùng id để so sánh vì id chỉ được sinh ra SAU KHI entity đã được
      * persist (GenerationType.IDENTITY). Trước khi lưu, id luôn là null, nên
