@@ -13,7 +13,7 @@ import java.util.List;
 public class Main {
     public static void main(String[] args) {
         DepartmentDAO departmentDAO = new DepartmentDAO();
-        departmentDAO.demoN1Problem();
+        departmentDAO.findAllWithEmployees();
 
         JPAUtil.close();
     }

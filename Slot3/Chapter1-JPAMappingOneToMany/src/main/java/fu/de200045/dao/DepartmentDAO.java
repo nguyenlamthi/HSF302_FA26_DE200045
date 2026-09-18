@@ -104,4 +104,19 @@ public class DepartmentDAO {
             em.close();
         }
     }
+
+    public void findAllWithEmployees() {
+        EntityManager em = emf.createEntityManager();
+        try {
+            List<Department> depts = em.createQuery("SELECT d FROM Department d LEFT JOIN FETCH d.employees ORDER BY d.id", Department.class)
+                    .getResultList();
+            System.out.println(depts.size());
+
+            for (Department d : depts) {
+                System.out.println(d.getName() + " - So luong nhan vien: " + d.getEmployees().size());
+            }
+        } finally {
+            em.close();
+        }
+    }
 }
