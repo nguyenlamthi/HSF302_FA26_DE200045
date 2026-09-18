@@ -3,6 +3,8 @@ package fu.de200045.pojo;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * TODO 5.1 - Entity Project
@@ -33,6 +35,9 @@ public class Project {
     // Có thể null nếu dự án chưa kết thúc
     @Column(name = "end_date")
     private LocalDate endDate;
+
+    @ManyToMany(mappedBy = "projects")
+    private Set<Employee> employees = new HashSet<>();
 
     // ===== Constructors =====
     public Project() {
@@ -94,6 +99,14 @@ public class Project {
 
     public void setEndDate(LocalDate endDate) {
         this.endDate = endDate;
+    }
+
+    public Set<Employee> getEmployees() {
+        return employees;
+    }
+
+    public void setEmployees(Set<Employee> employees) {
+        this.employees = employees;
     }
 
     // equals()/hashCode() sẽ được viết ở TODO 5.4 (dựa trên projectCode)
