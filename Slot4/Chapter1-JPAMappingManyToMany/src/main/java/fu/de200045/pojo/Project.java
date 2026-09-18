@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -109,7 +110,24 @@ public class Project {
         this.employees = employees;
     }
 
-    // equals()/hashCode() sẽ được viết ở TODO 5.4 (dựa trên projectCode)
+    /*
+     * Tương tự Employee: không dùng id vì id chỉ có giá trị sau khi persist.
+     * projectCode là business key duy nhất và ổn định, phù hợp để equals/hashCode,
+     * đặc biệt quan trọng khi Project được đưa vào Set<Project> (như trong
+     * Employee.projects) trước khi được lưu vào DB.
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Project)) return false;
+        Project project = (Project) o;
+        return Objects.equals(projectCode, project.projectCode);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(projectCode);
+    }
 
     @Override
     public String toString() {

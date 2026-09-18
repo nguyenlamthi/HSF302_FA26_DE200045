@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -127,7 +128,27 @@ public class Employee {
         this.projects = projects;
     }
 
-    // equals()/hashCode() sẽ được viết ở TODO 5.4 (dựa trên email)
+    /*
+     * Không dùng id để so sánh vì id chỉ được sinh ra SAU KHI entity đã được
+     * persist (GenerationType.IDENTITY). Trước khi lưu, id luôn là null, nên
+     * nếu dựa vào id thì mọi Employee mới tạo (chưa persist) sẽ có cùng
+     * hashCode/equals => Set<Employee> sẽ coi chúng là "trùng nhau" một cách
+     * sai lệch, hoặc ngược lại không phát hiện được trùng lặp thật sự.
+     * Email là business key: duy nhất, ổn định, có ý nghĩa nghiệp vụ ngay cả
+     * khi entity chưa được lưu vào DB, nên dùng email để equals/hashCode.
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Employee)) return false;
+        Employee employee = (Employee) o;
+        return Objects.equals(email, employee.email);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(email);
+    }
 
     @Override
     public String toString() {
