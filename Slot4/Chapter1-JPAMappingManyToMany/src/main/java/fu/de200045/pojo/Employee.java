@@ -3,6 +3,8 @@ package fu.de200045.pojo;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * TODO 5.1 - Entity Employee
@@ -37,6 +39,14 @@ public class Employee {
 
     @Column(name = "active", nullable = false)
     private boolean active = true;
+
+    @ManyToMany
+    @JoinTable(
+            name = "employee_project",
+            joinColumns = @JoinColumn(name = "employee_id"),
+            inverseJoinColumns = @JoinColumn(name = "project_id")
+    )
+    private Set<Project> projects = new HashSet<>();
 
     // ===== Constructors =====
     public Employee() {
@@ -107,6 +117,14 @@ public class Employee {
 
     public void setActive(boolean active) {
         this.active = active;
+    }
+
+    public Set<Project> getProjects() {
+        return projects;
+    }
+
+    public void setProjects(Set<Project> projects) {
+        this.projects = projects;
     }
 
     // equals()/hashCode() sẽ được viết ở TODO 5.4 (dựa trên email)
