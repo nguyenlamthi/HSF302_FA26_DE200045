@@ -89,4 +89,19 @@ public class DepartmentDAO {
             em.close();
         }
     }
+
+    public void demoN1Problem() {
+        EntityManager em = emf.createEntityManager();
+        try {
+            System.out.println("===== TODO 2.8: N+1 Query Problem =====");
+            List<Department> depts = em.createQuery("SELECT d FROM Department d ORDER BY d.id", Department.class)
+                    .getResultList();
+
+            for (Department d : depts) {
+                System.out.println(d.getName() + " - So luong nhan vien: " + d.getEmployees().size());
+            }
+        } finally {
+            em.close();
+        }
+    }
 }
