@@ -68,4 +68,46 @@ public class EmployeeDAO {
             em.close();
         }
     }
+
+    /**
+     * TODO 5.9 - Gỡ employee khỏi project. Tìm cả 2 entity trong cùng
+     * transaction (giống assignEmployeeToProject) để Hibernate track thay đổi
+     * trên collection và tự flush DELETE xuống bảng employee_project khi commit.
+     *
+     * Không dùng cascade = ALL (hay CascadeType.REMOVE) trên quan hệ N-N này:
+     * vì N-N nghĩa là 1 Project có thể có nhiều Employee và ngược lại, nếu
+     * cascade REMOVE thì việc xóa/gỡ quan hệ ở 1 phía có thể vô tình xóa luôn
+     * entity phía bên kia — ví dụ nếu lỡ cascade REMOVE trên Project.employees,
+     * xóa 1 Project có thể kéo theo xóa cả Employee (dù Employee đó vẫn đang
+     * tham gia project khác) — đây là hành vi sai nghiêm trọng, N-N chỉ nên
+     * xóa DÒNG trong bảng trung gian, không được xóa entity gốc.
+     */
+    public void unassignEmployeeFromProject(Long employeeId, Long projectId) {
+        EntityManager em = emf.createEntityManager();
+        EntityTransaction tx = em.getTransaction();
+        try {
+            tx.begin();
+
+            Employee employee = em.find(Employee.class, employeeId);
+            Project project = em.find(Project.class, projectId);
+
+            if (employee == null) {
+                throw new IllegalArgumentException("Không tìm thấy Employee id = " + employeeId);
+            }
+            if (project == null) {
+                throw new IllegalArgumentException("Không tìm thấy Project id = " + projectId);
+            }
+
+            employee.unassignFromProject(project);
+
+            tx.commit();
+        } catch (RuntimeException e) {
+            if (tx.isActive()) {
+                tx.rollback();
+            }
+            throw e;
+        } finally {
+            em.close();
+        }
+    }
 }

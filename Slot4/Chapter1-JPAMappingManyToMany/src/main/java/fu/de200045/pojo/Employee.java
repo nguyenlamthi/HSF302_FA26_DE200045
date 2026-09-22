@@ -143,6 +143,11 @@ public class Employee {
         p.getEmployees().add(this);
     }
 
+    public void unassignFromProject(Project p) {
+        this.projects.remove(p);
+        p.getEmployees().remove(this);
+    }
+
     /*
      * Không dùng id để so sánh vì id chỉ được sinh ra SAU KHI entity đã được
      * persist (GenerationType.IDENTITY). Trước khi lưu, id luôn là null, nên
