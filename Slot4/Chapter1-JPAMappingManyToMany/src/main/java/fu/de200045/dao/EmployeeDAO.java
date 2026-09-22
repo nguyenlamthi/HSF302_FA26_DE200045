@@ -110,4 +110,22 @@ public class EmployeeDAO {
             em.close();
         }
     }
+
+    /**
+     * TODO 5.10 - Tìm các Employee active đang tham gia nhiều hơn 1 project.
+     * SIZE(e.projects) đếm số phần tử trong collection projects của mỗi
+     * employee ngay trong câu SQL (Hibernate dịch thành subquery COUNT),
+     * không cần load hết projects ra rồi lọc bằng Java.
+     */
+    public List<Employee> findActiveEmployeesInMultipleProjects() {
+        EntityManager em = emf.createEntityManager();
+        try {
+            String jpql = "SELECT e FROM Employee e " +
+                    "WHERE e.active = true AND SIZE(e.projects) > 1";
+
+            return em.createQuery(jpql, Employee.class).getResultList();
+        } finally {
+            em.close();
+        }
+    }
 }
