@@ -128,4 +128,56 @@ public class EmployeeDAO {
             em.close();
         }
     }
+
+    /**
+     * TODO 5.11 - Deactivate employee (set active = false), KHÔNG xóa quan hệ
+     * trong bảng employee_project.
+     *
+     * Câu hỏi: nhân viên nghỉ việc có nên tự động bị gỡ khỏi tất cả project không?
+     * → KHÔNG NÊN gỡ tự động. Lý do:
+     *   1. Dữ liệu tham gia project là LỊCH SỬ (nhân viên X đã từng làm project Y)
+     *      — nghỉ việc không làm thay đổi sự thật lịch sử đó, chỉ thay đổi
+     *      trạng thái hiện tại (còn làm hay không).
+     *   2. Nếu xóa quan hệ trong employee_project khi deactivate, sẽ mất luôn
+     *      dữ liệu để tra cứu sau này (ví dụ: báo cáo "ai đã từng làm project
+     *      nào", tính công nợ/lương thưởng theo project cũ, audit trail...).
+     *   3. Tách biệt 2 khái niệm: "active" (đang làm việc hay không) và
+     *      "đang được PHÂN CÔNG vào project" là 2 chiều dữ liệu độc lập —
+     *      gộp chung logic của chúng (tự động gỡ khi deactivate) làm code
+     *      khó kiểm soát và sai lệch ý nghĩa nghiệp vụ.
+     *   4. Nếu thực sự cần gỡ khỏi project đang active (ví dụ dự án cần thay
+     *      người ngay), nên là một hành động TÁCH RIÊNG, tường minh — gọi
+     *      unassignEmployeeFromProject() (TODO 5.9) — không phải side-effect
+     *      ngầm của deactivateEmployee().
+     *
+     * => Đây cũng chính là lý do quan hệ N-N này KHÔNG dùng
+     *    cascade = CascadeType.ALL/REMOVE: cascade REMOVE sẽ tự động xóa quan
+     *    hệ (hoặc tệ hơn, xóa nhầm entity phía bên kia) mỗi khi 1 phía bị xóa/
+     *    thay đổi, trong khi nghiệp vụ thực tế cần giữ nguyên lịch sử tham gia
+     *    kể cả khi employee đã nghỉ việc.
+     */
+    public void deactivateEmployee(Long employeeId) {
+        EntityManager em = emf.createEntityManager();
+        EntityTransaction tx = em.getTransaction();
+        try {
+            tx.begin();
+
+            Employee employee = em.find(Employee.class, employeeId);
+            if (employee == null) {
+                throw new IllegalArgumentException("Không tìm thấy Employee id = " + employeeId);
+            }
+
+            employee.setActive(false);
+            // Không gọi unassignFromProject() ở đây — projects vẫn giữ nguyên.
+
+            tx.commit();
+        } catch (RuntimeException e) {
+            if (tx.isActive()) {
+                tx.rollback();
+            }
+            throw e;
+        } finally {
+            em.close();
+        }
+    }
 }
