@@ -1,11 +1,14 @@
 package fu.de200045.dao;
 
+import fu.de200045.dto.ProjectStat;
 import fu.de200045.pojo.Employee;
 import fu.de200045.pojo.Project;
 import fu.de200045.util.JPAUtil;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.EntityTransaction;
+
+import java.util.List;
 
 public class EmployeeDAO {
     private final EntityManagerFactory emf = JPAUtil.getEMF();
@@ -47,6 +50,20 @@ public class EmployeeDAO {
                 tx.rollback();
             }
             throw e;
+        } finally {
+            em.close();
+        }
+    }
+
+    public List<ProjectStat> countActiveEmployeesAndTotalSalaryByProject() {
+        EntityManager em = emf.createEntityManager();
+        try {
+            String jpql = "SELECT new fu.de200045.dto.ProjectStat(p.projectName, COUNT(e), SUM(e.salary)) " +
+                    "FROM Project p JOIN p.employees e " +
+                    "WHERE e.active = true " +
+                    "GROUP BY p.projectName";
+
+            return em.createQuery(jpql, ProjectStat.class).getResultList();
         } finally {
             em.close();
         }
