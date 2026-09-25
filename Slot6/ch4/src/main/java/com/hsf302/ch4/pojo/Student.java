@@ -48,12 +48,4 @@ public class Student {
                 studentCode, fullName, email, gpa, active ? "active" : "inactive");
         // KHÔNG in department → tránh LazyInitializationException
     }
-
-    public void setDepartment(Department department) {
-        this.department = department;
-    }
-
-    public Department getDepartment() {
-        return department;
-    }
 }
