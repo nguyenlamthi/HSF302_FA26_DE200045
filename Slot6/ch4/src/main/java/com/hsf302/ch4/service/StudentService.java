@@ -33,4 +33,5 @@ public interface StudentService {
     List<StudentSummary> getActiveSummaries();   // TODO 18
     Page<Student> findActiveByDepartment(String deptCode, int pageIndex, int size);   // TODO 19
     Student updateGpa(String studentCode, double newGpa);   // TODO 20
+    int deactivateLowGpa(double threshold);   // TODO 21
 }

@@ -163,4 +163,10 @@ public class StudentServiceImpl implements StudentService {
         return s;              // commit → Hibernate tự sinh UPDATE (dirty checking)
         // Cách tương đương: return studentRepository.save(s);
     }
+
+    @Override
+    @Transactional
+    public int deactivateLowGpa(double threshold) {
+        return studentRepository.deactivateLowGpa(threshold);
+    }
 }
