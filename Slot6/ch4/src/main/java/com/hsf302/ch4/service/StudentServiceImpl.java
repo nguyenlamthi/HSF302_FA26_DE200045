@@ -175,4 +175,14 @@ public class StudentServiceImpl implements StudentService {
     public long deleteInactiveStudents() {
         return studentRepository.deleteByActiveFalse();
     }
+
+    @Override
+    public List<Student> timTheoGioiTinh(Gender gender) {
+        return studentRepository.findByGender(gender);
+    }
+
+    @Override
+    public List<Student> timVoiGioiTinh(Gender gender) {
+        return studentRepository.findWithGender(gender);
+    }
 }
