@@ -44,7 +44,7 @@ public class Exercise2Runner implements CommandLineRunner {
         todo8();
         todo9();
         todo10();
-//        todo11();
+        todo11();
     }
 
     private void partD() {
@@ -128,5 +128,16 @@ public class Exercise2Runner implements CommandLineRunner {
         printList("(b2) Courses of AI dept (DISTINCT)", distinct);
         System.out.println("   Comparison: non-distinct = " + nonDistinct.size()
                 + " rows, distinct = " + distinct.size() + " rows");
+    }
+
+    // ===== TODO 11 =====
+    private void todo11() {
+        title("TODO 11: IsEmpty & existsBy");
+        printList("(a) Students without courses", enrollmentService.findStudentsWithoutCourses());
+        printList("(b) Courses without students", courseService.findCoursesWithoutStudents());
+        System.out.println("(c) SE001 enrolled in AIL303? "
+                + enrollmentService.isEnrolled("SE001", "AIL303"));
+        System.out.println("    SE002 enrolled in AIL303? "
+                + enrollmentService.isEnrolled("SE002", "AIL303"));
     }
 }

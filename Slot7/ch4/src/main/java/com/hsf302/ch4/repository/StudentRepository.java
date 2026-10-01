@@ -87,4 +87,8 @@ public interface StudentRepository extends JpaRepository<Student, Long>,
     List<Student> findByCourses_CodeOrderByFullNameAsc(String courseCode);
     long countByCourses_Code(String courseCode);
     List<Student> findByCourses_CodeAndActiveTrueOrderByFullNameAsc(String courseCode);
+
+    // ===== Exercise 2: TODO 11 =====
+    List<Student> findByCoursesIsEmpty();
+    boolean existsByStudentCodeAndCourses_Code(String studentCode, String courseCode);
 }
