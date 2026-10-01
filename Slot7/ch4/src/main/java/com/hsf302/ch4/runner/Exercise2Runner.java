@@ -43,7 +43,7 @@ public class Exercise2Runner implements CommandLineRunner {
     private void partC() {
         todo8();
         todo9();
-//        todo10();
+        todo10();
 //        todo11();
     }
 
@@ -116,5 +116,17 @@ public class Exercise2Runner implements CommandLineRunner {
         printList("(a) Students of PRJ301", enrollmentService.findStudentsInCourse("PRJ301"));
         System.out.println("(b) Enrolled in HSF302: " + enrollmentService.countStudentsInCourse("HSF302"));
         printList("(c) Active students of PRJ301", enrollmentService.findActiveStudentsInCourse("PRJ301"));
+    }
+
+    // ===== TODO 10 =====
+    private void todo10() {
+        title("TODO 10: from inverse side & Distinct keyword");
+        printList("(a) Courses of SE002", courseService.findCoursesOfStudent("SE002"));
+        List<Course> nonDistinct = courseService.findCoursesOfDepartment("AI", false);
+        List<Course> distinct = courseService.findCoursesOfDepartment("AI", true);
+        printList("(b1) Courses of AI dept (NO distinct)", nonDistinct);
+        printList("(b2) Courses of AI dept (DISTINCT)", distinct);
+        System.out.println("   Comparison: non-distinct = " + nonDistinct.size()
+                + " rows, distinct = " + distinct.size() + " rows");
     }
 }

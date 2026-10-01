@@ -46,4 +46,23 @@ public class CourseServiceImpl implements CourseService {
     public long countBySemester(String semester) {
         return courseRepository.countBySemester(semester);
     }
+
+    // ===== TODO 10 =====
+    @Override
+    public List<Course> findCoursesOfStudent(String studentCode) {
+        if (studentCode == null || studentCode.isBlank()) {
+            throw new IllegalArgumentException("Student code must not be blank");
+        }
+        return courseRepository.findByStudents_StudentCodeOrderByCodeAsc(studentCode);
+    }
+
+    @Override
+    public List<Course> findCoursesOfDepartment(String deptCode, boolean distinct) {
+        if (deptCode == null || deptCode.isBlank()) {
+            throw new IllegalArgumentException("Department code must not be blank");
+        }
+        return distinct
+                ? courseRepository.findDistinctByStudents_Department_CodeOrderByCodeAsc(deptCode)
+                : courseRepository.findByStudents_Department_CodeOrderByCodeAsc(deptCode);
+    }
 }
