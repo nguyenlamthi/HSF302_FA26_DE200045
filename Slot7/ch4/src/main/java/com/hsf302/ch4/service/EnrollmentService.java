@@ -1,5 +1,14 @@
 package com.hsf302.ch4.service;
 
+import com.hsf302.ch4.pojo.Course;
+import com.hsf302.ch4.pojo.Student;
+
+import java.util.List;
+
 public interface EnrollmentService {
-    // Khai báo các method nghiệp vụ đăng ký/huỷ môn (sẽ bổ sung dần từ TODO 7)
+
+    // ===== TODO 7 =====
+    List<Course> getCoursesOfStudent(String studentCode);
+    List<Student> getStudentsOfCourse(String courseCode);
+
 }

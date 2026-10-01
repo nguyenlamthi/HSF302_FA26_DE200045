@@ -1,19 +1,55 @@
 package com.hsf302.ch4.service;
 
+import com.hsf302.ch4.pojo.Course;
+import com.hsf302.ch4.pojo.Student;
 import com.hsf302.ch4.repository.CourseRepository;
 import com.hsf302.ch4.repository.StudentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class EnrollmentServiceImpl implements EnrollmentService {
 
-    // Nghiệp vụ đăng ký cần tương tác cả Sinh viên lẫn Khóa học
     private final StudentRepository studentRepository;
     private final CourseRepository courseRepository;
 
-    // Sẽ cài đặt các method từ TODO 7
+    // ===== TODO 7 =====
+    @Override
+    public List<Course> getCoursesOfStudent(String studentCode) {
+        Student s = getStudent(studentCode);
+        return s.getCourses().stream()                       // Kích hoạt nạp LAZY bên trong transaction -> an toàn
+                .sorted(Comparator.comparing(Course::getCode))
+                .toList();
+    }
+
+    @Override
+    public List<Student> getStudentsOfCourse(String courseCode) {
+        Course c = getCourse(courseCode);
+        return c.getStudents().stream()                      // Phía inverse side vẫn đọc được bình thường
+                .sorted(Comparator.comparing(Student::getFullName))
+                .toList();
+    }
+
+    // ===== Private Helpers kiểm tra hợp lệ dùng chung cho toàn bộ Service =====
+    private Student getStudent(String studentCode) {
+        if (studentCode == null || studentCode.isBlank()) {
+            throw new IllegalArgumentException("Student code must not be blank");
+        }
+        return studentRepository.findByStudentCode(studentCode)
+                .orElseThrow(() -> new IllegalArgumentException("Student not found: " + studentCode));
+    }
+
+    private Course getCourse(String courseCode) {
+        if (courseCode == null || courseCode.isBlank()) {
+            throw new IllegalArgumentException("Course code must not be blank");
+        }
+        return courseRepository.findByCode(courseCode)
+                .orElseThrow(() -> new IllegalArgumentException("Course not found: " + courseCode));
+    }
 }

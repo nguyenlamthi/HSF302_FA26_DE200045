@@ -3,6 +3,11 @@ package com.hsf302.ch4.repository;
 import com.hsf302.ch4.pojo.Course;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.Optional;
+
 public interface CourseRepository extends JpaRepository<Course, Long> {
-    // Các derived query và custom query sẽ được bổ sung từ TODO 6 trở đi
+
+    // ===== TODO 7 =====
+    Optional<Course> findByCode(String code);
+
 }
