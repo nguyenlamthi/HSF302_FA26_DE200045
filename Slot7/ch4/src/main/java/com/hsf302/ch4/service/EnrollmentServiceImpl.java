@@ -1,5 +1,6 @@
 package com.hsf302.ch4.service;
 
+import com.hsf302.ch4.dto.StudentCreditDTO;
 import com.hsf302.ch4.pojo.Course;
 import com.hsf302.ch4.pojo.Student;
 import com.hsf302.ch4.repository.CourseRepository;
@@ -93,5 +94,14 @@ public class EnrollmentServiceImpl implements EnrollmentService {
             throw new IllegalArgumentException("minGpa must be between 0.0 and 4.0");
         }
         return studentRepository.findGoodStudentsInCourse(courseCode, minGpa);
+    }
+
+    // ===== TODO 14 =====
+    @Override
+    public List<StudentCreditDTO> getCreditSummary(int minCredits) {
+        if (minCredits < 0) {
+            throw new IllegalArgumentException("minCredits must be >= 0");
+        }
+        return studentRepository.getStudentCreditSummary(minCredits);
     }
 }
