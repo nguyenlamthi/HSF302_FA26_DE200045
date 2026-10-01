@@ -49,6 +49,7 @@ public class Exercise2Runner implements CommandLineRunner {
 
     private void partD() {
         todo12();
+        todo13();
     }
 
     private void bonus() {
@@ -146,5 +147,11 @@ public class Exercise2Runner implements CommandLineRunner {
         title("TODO 12: JPQL JOIN collection + named parameter");
         printList("HSF302, GPA >= 3.5",
                 enrollmentService.findGoodStudentsInCourse("HSF302", 3.5));
+    }
+
+    // ===== TODO 13 =====
+    private void todo13() {
+        title("TODO 13: Course statistics (LEFT JOIN + GROUP BY + DTO)");
+        printList("Course statistics", courseService.getStatistics());
     }
 }
