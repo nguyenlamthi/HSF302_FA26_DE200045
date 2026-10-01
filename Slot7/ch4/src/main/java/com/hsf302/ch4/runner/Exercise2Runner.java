@@ -51,6 +51,7 @@ public class Exercise2Runner implements CommandLineRunner {
         todo12();
         todo13();
         todo14();
+        todo15();
     }
 
     private void bonus() {
@@ -160,5 +161,12 @@ public class Exercise2Runner implements CommandLineRunner {
     private void todo14() {
         title("TODO 14: Student credit summary (GROUP BY + HAVING)");
         printList("Students with >= 7 credits", enrollmentService.getCreditSummary(7));
+    }
+
+    // ===== TODO 15 =====
+    private void todo15() {
+        title("TODO 15: SIZE() function");
+        printList("(a) Full courses", courseService.findFullCourses());
+        printList("(b) Students with > 2 courses", enrollmentService.findStudentsWithMoreThan(2));
     }
 }

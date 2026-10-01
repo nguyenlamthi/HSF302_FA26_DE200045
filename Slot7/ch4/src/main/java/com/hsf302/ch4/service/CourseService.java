@@ -27,4 +27,7 @@ public interface CourseService {
 
     // ===== TODO 13 =====
     List<CourseStatDTO> getStatistics();
+
+    // ===== TODO 15 =====
+    List<Course> findFullCourses();
 }
