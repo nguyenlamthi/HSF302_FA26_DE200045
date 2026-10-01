@@ -91,4 +91,14 @@ public interface StudentRepository extends JpaRepository<Student, Long>,
     // ===== Exercise 2: TODO 11 =====
     List<Student> findByCoursesIsEmpty();
     boolean existsByStudentCodeAndCourses_Code(String studentCode, String courseCode);
+
+    // ===== Exercise 2: TODO 12 =====
+    @Query("""
+        SELECT s FROM Student s
+        JOIN s.courses c
+        WHERE c.code = :courseCode AND s.gpa >= :minGpa
+        ORDER BY s.gpa DESC
+    """)
+    List<Student> findGoodStudentsInCourse(@Param("courseCode") String courseCode,
+                                           @Param("minGpa") double minGpa);
 }
