@@ -36,8 +36,8 @@ public class Course {
     private String semester;               // "FA26", "SU26"...
 
     // Inverse side: "courses" là TÊN FIELD bên Student
-//    @ManyToMany(mappedBy = "courses")
-//    private Set<Student> students = new HashSet<>();
+    @ManyToMany(mappedBy = "courses")
+    private Set<Student> students = new HashSet<>();
 
     public Course(String code, String name, int credits, int capacity, String semester) {
         this.code = code;
