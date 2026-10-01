@@ -1,6 +1,7 @@
 package com.hsf302.ch4.runner;
 
 import com.hsf302.ch4.dto.CourseEnrollmentCount;
+import com.hsf302.ch4.dto.EnrollmentView;
 import com.hsf302.ch4.pojo.Course;
 import com.hsf302.ch4.pojo.Student;
 import com.hsf302.ch4.service.CourseService;
@@ -56,6 +57,7 @@ public class Exercise2Runner implements CommandLineRunner {
         todo15();
         todo16();
         todo17();
+        todo18();
     }
 
     private void bonus() {
@@ -205,6 +207,15 @@ public class Exercise2Runner implements CommandLineRunner {
         List<CourseEnrollmentCount> list = courseService.findTopEnrolled(3);
         list.forEach(c -> System.out.printf("   %s | %-40s | %d students%n",
                 c.getCode(), c.getName(), c.getEnrolled()));
+        System.out.println("   -> " + list.size() + " record(s)");
+    }
+
+    // ===== TODO 18 =====
+    private void todo18() {
+        title("TODO 18: Enrollment view interface projection (JOIN 3 entities)");
+        List<EnrollmentView> list = enrollmentService.getEnrollmentsOfDepartment("AI");
+        list.forEach(e -> System.out.printf("   %s | %-15s | %s - %-40s | %d credits%n",
+                e.getStudentCode(), e.getFullName(), e.getCourseCode(), e.getCourseName(), e.getCredits()));
         System.out.println("   -> " + list.size() + " record(s)");
     }
 }

@@ -1,5 +1,6 @@
 package com.hsf302.ch4.service;
 
+import com.hsf302.ch4.dto.EnrollmentView;
 import com.hsf302.ch4.dto.StudentCreditDTO;
 import com.hsf302.ch4.pojo.Course;
 import com.hsf302.ch4.pojo.Student;
@@ -122,5 +123,14 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         }
         return studentRepository.findByStudentCodeWithCourses(studentCode)
                 .orElseThrow(() -> new IllegalArgumentException("Student not found: " + studentCode));
+    }
+
+    // ===== TODO 18 =====
+    @Override
+    public List<EnrollmentView> getEnrollmentsOfDepartment(String deptCode) {
+        if (deptCode == null || deptCode.isBlank()) {
+            throw new IllegalArgumentException("Department code must not be blank");
+        }
+        return studentRepository.getEnrollmentsByDepartment(deptCode);
     }
 }
