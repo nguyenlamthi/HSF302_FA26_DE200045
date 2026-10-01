@@ -33,4 +33,7 @@ public interface CourseService {
 
     // ===== TODO 16 =====
     Course getWithStudents(String code);
+
+    // ===== TODO 17 =====
+    List<com.hsf302.ch4.dto.CourseEnrollmentCount> findTopEnrolled(int n);
 }

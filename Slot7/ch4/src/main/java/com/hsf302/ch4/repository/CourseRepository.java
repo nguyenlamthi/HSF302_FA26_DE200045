@@ -1,10 +1,12 @@
 package com.hsf302.ch4.repository;
 
+import com.hsf302.ch4.dto.CourseEnrollmentCount;
 import com.hsf302.ch4.dto.CourseStatDTO;
 import com.hsf302.ch4.pojo.Course;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -49,4 +51,17 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
     // ===== TODO 16 =====
     @EntityGraph(attributePaths = {"students"})
     Optional<Course> findWithStudentsByCode(String code);
+
+    // ===== TODO 17 =====
+    @Query(value = """
+        SELECT TOP (:n)
+            c.code AS code,
+            c.name AS name,
+            COUNT(sc.student_id) AS enrolled
+        FROM courses c
+        LEFT JOIN student_courses sc ON c.id = sc.course_id
+        GROUP BY c.code, c.name
+        ORDER BY COUNT(sc.student_id) DESC, c.code ASC
+    """, nativeQuery = true)
+    List<CourseEnrollmentCount> findTopEnrolledCourses(@Param("n") int n);
 }

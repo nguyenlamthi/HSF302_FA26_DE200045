@@ -1,5 +1,6 @@
 package com.hsf302.ch4.runner;
 
+import com.hsf302.ch4.dto.CourseEnrollmentCount;
 import com.hsf302.ch4.pojo.Course;
 import com.hsf302.ch4.pojo.Student;
 import com.hsf302.ch4.service.CourseService;
@@ -54,6 +55,7 @@ public class Exercise2Runner implements CommandLineRunner {
         todo14();
         todo15();
         todo16();
+        todo17();
     }
 
     private void bonus() {
@@ -195,5 +197,14 @@ public class Exercise2Runner implements CommandLineRunner {
         cFull.getStudents().stream()
                 .sorted(java.util.Comparator.comparing(Student::getFullName))
                 .forEach(st -> System.out.println("     " + st));
+    }
+
+    // ===== TODO 17 =====
+    private void todo17() {
+        title("TODO 17: Native query - TOP N enrolled courses");
+        List<CourseEnrollmentCount> list = courseService.findTopEnrolled(3);
+        list.forEach(c -> System.out.printf("   %s | %-40s | %d students%n",
+                c.getCode(), c.getName(), c.getEnrolled()));
+        System.out.println("   -> " + list.size() + " record(s)");
     }
 }
