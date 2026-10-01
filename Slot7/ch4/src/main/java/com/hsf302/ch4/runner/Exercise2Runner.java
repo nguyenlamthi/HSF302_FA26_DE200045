@@ -1,0 +1,76 @@
+package com.hsf302.ch4.runner;
+
+import com.hsf302.ch4.service.CourseService;
+import com.hsf302.ch4.service.EnrollmentService;
+import com.hsf302.ch4.service.StudentService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
+import org.springframework.core.annotation.Order;
+import org.springframework.stereotype.Component;
+
+import java.util.Collection;
+
+@Component
+@Order(3)                                // Chạy sau khi toàn bộ dữ liệu đã được seed xong
+@Profile("ex2")                          // Chỉ chạy khi profile ex2 đang kích hoạt
+@RequiredArgsConstructor
+public class Exercise2Runner implements CommandLineRunner {
+
+    // N-layer: CHỈ inject Service interface, KHÔNG inject Repository
+    private final CourseService courseService;
+    private final EnrollmentService enrollmentService;
+    private final StudentService studentService;          // của Exercise 1 (dùng cho TODO 16a, 21)
+
+    @Override
+    public void run(String... args) {
+        System.out.println("\n========== START EXERCISE 2 ==========");
+        partB();
+        partC();
+        partD();
+        bonus();
+        partE();
+        System.out.println("\n========== END EXERCISE 2 ==========");
+    }
+
+    private void partB() {
+        // Sẽ gọi todo6(); todo7();
+    }
+
+    private void partC() {
+        // Sẽ gọi todo8(); todo9(); todo10(); todo11();
+    }
+
+    private void partD() {
+        // Sẽ gọi todo12() -> todo19();
+    }
+
+    private void bonus() {
+        // Sẽ gọi todo25();
+    }
+
+    private void partE() {
+        // Sẽ gọi todo20() -> todo24();
+    }
+
+    // ===== Helpers in ấn dùng chung =====
+    private void title(String t) {
+        System.out.println("\n===== " + t + " =====");
+    }
+
+    private void printList(String label, Collection<?> list) {
+        System.out.println("-- " + label + ":");
+        list.forEach(o -> System.out.println("   " + o));
+        System.out.println("   -> " + list.size() + " record(s)");
+    }
+
+    /** Helper chạy thao tác ghi dữ liệu có bắt exception (dùng cho Part E) */
+    private void attempt(String label, Runnable action) {
+        try {
+            action.run();
+            System.out.println("   [OK]   " + label);
+        } catch (RuntimeException e) {
+            System.out.println("   [FAIL] " + label + " -> " + e.getMessage());
+        }
+    }
+}
