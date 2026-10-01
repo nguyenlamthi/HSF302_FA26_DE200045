@@ -84,4 +84,14 @@ public class CourseServiceImpl implements CourseService {
     public List<Course> findFullCourses() {
         return courseRepository.findFullCourses();
     }
+
+    // ===== TODO 16 =====
+    @Override
+    public Course getWithStudents(String code) {
+        if (code == null || code.isBlank()) {
+            throw new IllegalArgumentException("Course code must not be blank");
+        }
+        return courseRepository.findWithStudentsByCode(code)
+                .orElseThrow(() -> new IllegalArgumentException("Course not found: " + code));
+    }
 }

@@ -1,6 +1,7 @@
 package com.hsf302.ch4.runner;
 
 import com.hsf302.ch4.pojo.Course;
+import com.hsf302.ch4.pojo.Student;
 import com.hsf302.ch4.service.CourseService;
 import com.hsf302.ch4.service.EnrollmentService;
 import com.hsf302.ch4.service.StudentService;
@@ -52,6 +53,7 @@ public class Exercise2Runner implements CommandLineRunner {
         todo13();
         todo14();
         todo15();
+        todo16();
     }
 
     private void bonus() {
@@ -168,5 +170,30 @@ public class Exercise2Runner implements CommandLineRunner {
         title("TODO 15: SIZE() function");
         printList("(a) Full courses", courseService.findFullCourses());
         printList("(b) Students with > 2 courses", enrollmentService.findStudentsWithMoreThan(2));
+    }
+
+    // ===== TODO 16 =====
+    private void todo16() {
+        title("TODO 16: LazyInitializationException, JOIN FETCH & @EntityGraph");
+        // (a) Tái hiện LazyInitializationException: nạp student bằng service thường rồi truy cập courses ngoài transaction
+        Student s = studentService.findByStudentCode("SE001").orElseThrow();
+        try {
+            System.out.println("Courses size: " + s.getCourses().size());
+        } catch (org.hibernate.LazyInitializationException e) {
+            System.out.println("(a) Caught: " + e.getClass().getSimpleName());
+            System.out.println("    " + e.getMessage());
+        }
+        // (b) JOIN FETCH: Nạp sẵn courses vào bộ nhớ ngay trong 1 câu SQL
+        Student sFull = enrollmentService.getStudentWithCourses("SE001");
+        System.out.println("(b) SE001 courses (JOIN FETCH):");
+        sFull.getCourses().stream()
+                .sorted(java.util.Comparator.comparing(Course::getCode))
+                .forEach(c -> System.out.println("     " + c));
+        // (c) @EntityGraph: Nạp sẵn students của Course một cách linh hoạt
+        Course cFull = courseService.getWithStudents("SWP391");
+        System.out.println("(c) SWP391 students (@EntityGraph):");
+        cFull.getStudents().stream()
+                .sorted(java.util.Comparator.comparing(Student::getFullName))
+                .forEach(st -> System.out.println("     " + st));
     }
 }
