@@ -71,6 +71,7 @@ public class Exercise2Runner implements CommandLineRunner {
         todo21();
         todo22();
         todo23();
+        todo24();
     }
 
     // ===== Helpers in ấn dùng chung =====
@@ -322,5 +323,15 @@ public class Exercise2Runner implements CommandLineRunner {
         printList("Remaining courses", courseService.findAllOrderByCode());
         printList("Courses of IA002 (IAA202 should be gone)",
                 enrollmentService.getCoursesOfStudent("IA002"));
+    }
+
+    // ===== TODO 24 =====
+    private void todo24() {
+        title("TODO 24: Bulk delete on join table (@Modifying native)");
+        int removed = enrollmentService.removeEnrollmentsOfInactiveStudents();
+        System.out.println("Removed enrollments of inactive students: " + removed);
+        printList("Final course statistics", courseService.getStatistics());
+        printList("Students without courses now",
+                enrollmentService.findStudentsWithoutCourses());
     }
 }

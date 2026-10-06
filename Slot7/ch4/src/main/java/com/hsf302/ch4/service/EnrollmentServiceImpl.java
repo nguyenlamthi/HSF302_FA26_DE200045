@@ -200,4 +200,11 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         unenroll(studentCode, fromCode); // Bước 1: Rút khỏi lớp cũ
         enroll(studentCode, toCode);     // Bước 2: Đăng ký vào lớp mới (nếu fail -> Spring tự rollback bước 1)
     }
+
+    // ===== TODO 24 =====
+    @Override
+    @Transactional
+    public int removeEnrollmentsOfInactiveStudents() {
+        return studentRepository.deleteEnrollmentsOfInactiveStudents();
+    }
 }
