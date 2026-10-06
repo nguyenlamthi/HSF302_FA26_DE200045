@@ -70,6 +70,7 @@ public class Exercise2Runner implements CommandLineRunner {
         todo20();
         todo21();
         todo22();
+        todo23();
     }
 
     // ===== Helpers in ấn dùng chung =====
@@ -303,5 +304,23 @@ public class Exercise2Runner implements CommandLineRunner {
         // Chứng minh tính toàn vẹn: Môn PRJ301 KHÔNG bị mất (bước unenroll trước đó đã được rollback hoàn toàn)
         printList("Courses of SE001 after failed switch (PRJ301 must still be here)",
                 enrollmentService.getCoursesOfStudent("SE001"));
+    }
+
+    // ===== TODO 23 =====
+    private void todo23() {
+        title("TODO 23: delete course safely");
+        // (a) Xoá trực tiếp từ inverse side khi đang có sinh viên -> Vi phạm ràng buộc khoá ngoại FK
+        try {
+            courseService.deleteCourseDirectly("IAA202");
+        } catch (org.springframework.dao.DataIntegrityViolationException e) {
+            System.out.println("(a) Caught expected: " + e.getClass().getSimpleName());
+            System.out.println("    Root cause: " + (e.getRootCause() != null ? e.getRootCause().getMessage() : e.getMessage()));
+        }
+        // (b) Xoá đúng cách: gỡ liên kết từ owning side của sinh viên trước
+        int unlinked = courseService.deleteCourse("IAA202");
+        System.out.println("(b) Unlinked " + unlinked + " students and deleted course IAA202");
+        printList("Remaining courses", courseService.findAllOrderByCode());
+        printList("Courses of IA002 (IAA202 should be gone)",
+                enrollmentService.getCoursesOfStudent("IA002"));
     }
 }

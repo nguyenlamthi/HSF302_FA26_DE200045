@@ -111,4 +111,30 @@ public class CourseServiceImpl implements CourseService {
         }
         return courseRepository.findByNameContainKeyWord(keyword);
     }
+
+    // ===== TODO 23 =====
+    @Override
+    @Transactional
+    public void deleteCourseDirectly(String code) {
+        Course c = courseRepository.findByCode(code)
+                .orElseThrow(() -> new IllegalArgumentException("Course not found: " + code));
+        courseRepository.delete(c);
+        courseRepository.flush(); // Bắt buộc flush() để ép Hibernate bắn câu DELETE ngay lập tức
+    }
+
+    @Override
+    @Transactional
+    public int deleteCourse(String code) {
+        Course c = courseRepository.findByCode(code)
+                .orElseThrow(() -> new IllegalArgumentException("Course not found: " + code));
+
+        // Tạo bản sao danh sách sinh viên để tránh ConcurrentModificationException khi vừa duyệt vừa gỡ
+        java.util.List<com.hsf302.ch4.pojo.Student> students = new java.util.ArrayList<>(c.getStudents());
+        for (com.hsf302.ch4.pojo.Student s : students) {
+            s.unenroll(c); // Owning side tự động DELETE các dòng trong student_courses
+        }
+
+        courseRepository.delete(c);
+        return students.size();
+    }
 }
