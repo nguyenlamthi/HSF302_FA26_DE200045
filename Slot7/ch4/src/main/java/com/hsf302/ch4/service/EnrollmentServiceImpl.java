@@ -146,4 +146,30 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(pageIndex, size);
         return studentRepository.findStudentsInCoursePage(courseCode, pageable);
     }
+
+    // ===== TODO 20 =====
+    @Override
+    @Transactional                       // BẮT BUỘC: Thao tác ghi dữ liệu cần transaction ghi
+    public void enroll(String studentCode, String courseCode) {
+        Student s = getStudent(studentCode);
+        Course c = getCourse(courseCode);
+
+        // Quy tắc 1: Sinh viên phải active
+        if (!s.isActive()) {
+            throw new IllegalStateException("Student is inactive: " + studentCode);
+        }
+
+        // Quy tắc 2: Chưa đăng ký khóa học đó
+        if (s.getCourses().contains(c)) {
+            throw new IllegalStateException("Student already enrolled in course: " + courseCode);
+        }
+
+        // Quy tắc 3: Khóa học còn chỗ trống
+        if (c.getStudents().size() >= c.getCapacity()) {
+            throw new IllegalStateException("Course is full: " + courseCode);
+        }
+
+        // Gọi helper đồng bộ 2 chiều -> Hibernate dirty checking tự INSERT vào bảng trung gian
+        s.enroll(c);
+    }
 }

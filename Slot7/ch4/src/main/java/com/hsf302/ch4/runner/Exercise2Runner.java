@@ -33,9 +33,9 @@ public class Exercise2Runner implements CommandLineRunner {
         System.out.println("\n========== START EXERCISE 2 ==========");
 //        partB();
 //        partC();
-        partD();
+//        partD();
 //        bonus();
-//        partE();
+        partE();
         System.out.println("\n========== END EXERCISE 2 ==========");
     }
 
@@ -67,7 +67,7 @@ public class Exercise2Runner implements CommandLineRunner {
     }
 
     private void partE() {
-        // Sẽ gọi todo20() -> todo24();
+        todo20();
     }
 
     // ===== Helpers in ấn dùng chung =====
@@ -240,5 +240,27 @@ public class Exercise2Runner implements CommandLineRunner {
                     + ", isLast=" + page.isLast());
             pageIndex++;
         } while (page.hasNext());
+    }
+
+    // ===== TODO 20 =====
+    private void todo20() {
+        title("TODO 20: enroll student with business rules");
+
+        // Thử nghiệm 5 kịch bản thông qua helper attempt()
+        attempt("Enroll IA003 -> MKT101 (OK)",
+                () -> enrollmentService.enroll("IA003", "MKT101"));
+        attempt("Enroll SE001 -> PRJ301 (already enrolled)",
+                () -> enrollmentService.enroll("SE001", "PRJ301"));
+        attempt("Enroll SE004 -> AIL303 (full: 4/4)",
+                () -> enrollmentService.enroll("SE004", "AIL303"));
+        attempt("Enroll SE003 -> HSF302 (inactive)",
+                () -> enrollmentService.enroll("SE003", "HSF302"));
+        attempt("Enroll XX999 -> HSF302 (not found)",
+                () -> enrollmentService.enroll("XX999", "HSF302"));
+        // Kiểm tra lại dữ liệu sau khi đăng ký thành công
+        printList("Courses of IA003 after enroll",
+                enrollmentService.getCoursesOfStudent("IA003"));
+        System.out.println("Enrolled in MKT101: "
+                + enrollmentService.getStudentsOfCourse("MKT101").size());
     }
 }

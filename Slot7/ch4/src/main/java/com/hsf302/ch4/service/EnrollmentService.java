@@ -40,4 +40,7 @@ public interface EnrollmentService {
 
     // ===== TODO 19 =====
     Page<Student> findStudentsInCoursePage(String courseCode, int pageIndex, int size);
+
+    // ===== TODO 20 =====
+    void enroll(String studentCode, String courseCode);
 }
