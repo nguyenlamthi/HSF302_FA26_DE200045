@@ -188,4 +188,16 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         // Gọi helper đồng bộ 2 chiều -> Hibernate dirty checking tự DELETE dòng trong student_courses
         s.unenroll(c);
     }
+
+    // ===== TODO 22 =====
+    @Override
+    @Transactional                       // BẮT BUỘC: Cả 2 thao tác chạy trong 1 Transaction nguyên tử
+    public void switchCourse(String studentCode, String fromCode, String toCode) {
+        if (fromCode == null || toCode == null || fromCode.equalsIgnoreCase(toCode)) {
+            throw new IllegalArgumentException("Source and target courses must be different");
+        }
+
+        unenroll(studentCode, fromCode); // Bước 1: Rút khỏi lớp cũ
+        enroll(studentCode, toCode);     // Bước 2: Đăng ký vào lớp mới (nếu fail -> Spring tự rollback bước 1)
+    }
 }

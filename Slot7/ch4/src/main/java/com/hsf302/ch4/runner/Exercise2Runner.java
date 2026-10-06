@@ -69,6 +69,7 @@ public class Exercise2Runner implements CommandLineRunner {
     private void partE() {
         todo20();
         todo21();
+        todo22();
     }
 
     // ===== Helpers in ấn dùng chung =====
@@ -286,5 +287,21 @@ public class Exercise2Runner implements CommandLineRunner {
         System.out.println("Student AI002 exists? "
                 + studentService.findByStudentCode("AI002").isPresent());
         System.out.println("Total courses still = " + courseService.count());
+    }
+
+    // ===== TODO 22 =====
+    private void todo22() {
+        title("TODO 22: switch course in one transaction (rollback test)");
+        // Kịch bản 1: Đổi thành công (SWP391 -> MKT101)
+        attempt("Switch SE001: SWP391 -> MKT101 (OK)",
+                () -> enrollmentService.switchCourse("SE001", "SWP391", "MKT101"));
+        printList("Courses of SE001 after successful switch",
+                enrollmentService.getCoursesOfStudent("SE001"));
+        // Kịch bản 2: Đổi thất bại (PRJ301 -> AIL303 vì AIL303 đang đầy 4/4) -> Kích hoạt ROLLBACK!
+        attempt("Switch SE001: PRJ301 -> AIL303 (fail: AIL303 full -> rollback)",
+                () -> enrollmentService.switchCourse("SE001", "PRJ301", "AIL303"));
+        // Chứng minh tính toàn vẹn: Môn PRJ301 KHÔNG bị mất (bước unenroll trước đó đã được rollback hoàn toàn)
+        printList("Courses of SE001 after failed switch (PRJ301 must still be here)",
+                enrollmentService.getCoursesOfStudent("SE001"));
     }
 }

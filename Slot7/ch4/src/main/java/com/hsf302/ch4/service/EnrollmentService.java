@@ -46,4 +46,7 @@ public interface EnrollmentService {
 
     // ===== TODO 21 =====
     void unenroll(String studentCode, String courseCode);
+
+    // ===== TODO 22 =====
+    void switchCourse(String studentCode, String fromCode, String toCode);
 }
