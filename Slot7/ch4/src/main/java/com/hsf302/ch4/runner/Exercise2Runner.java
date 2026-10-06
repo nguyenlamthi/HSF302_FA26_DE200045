@@ -68,6 +68,7 @@ public class Exercise2Runner implements CommandLineRunner {
 
     private void partE() {
         todo20();
+        todo21();
     }
 
     // ===== Helpers in ấn dùng chung =====
@@ -262,5 +263,28 @@ public class Exercise2Runner implements CommandLineRunner {
                 enrollmentService.getCoursesOfStudent("IA003"));
         System.out.println("Enrolled in MKT101: "
                 + enrollmentService.getStudentsOfCourse("MKT101").size());
+    }
+
+    // ===== TODO 21 =====
+    private void todo21() {
+        title("TODO 21: unenroll student from course");
+        // 1. Huỷ môn AIL303 của AI002 (hợp lệ)
+        attempt("Unenroll AI002 from AIL303 (OK)",
+                () -> enrollmentService.unenroll("AI002", "AIL303"));
+        // 2. Huỷ môn PRJ301 của IA003 (thất bại: chưa từng đăng ký)
+        attempt("Unenroll IA003 from PRJ301 (not enrolled)",
+                () -> enrollmentService.unenroll("IA003", "PRJ301"));
+        // 3. Đăng ký SE004 vào AIL303 (lúc trước ở TODO 20 bị đầy 4/4, giờ AI002 rút môn nên trống 1 chỗ -> thành công!)
+        attempt("Enroll SE004 -> AIL303 now (was full, now has 1 slot)",
+                () -> enrollmentService.enroll("SE004", "AIL303"));
+        // In kiểm tra danh sách sinh viên của AIL303 và môn học của AI002
+        printList("Students of AIL303 after changes",
+                enrollmentService.getStudentsOfCourse("AIL303"));
+        printList("Courses of AI002 after unenroll",
+                enrollmentService.getCoursesOfStudent("AI002"));
+        // Chứng minh: unenroll CHỈ xoá liên kết trong student_courses, KHÔNG làm mất Entity
+        System.out.println("Student AI002 exists? "
+                + studentService.findByStudentCode("AI002").isPresent());
+        System.out.println("Total courses still = " + courseService.count());
     }
 }

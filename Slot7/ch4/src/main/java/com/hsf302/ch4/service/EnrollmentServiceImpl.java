@@ -172,4 +172,20 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         // Gọi helper đồng bộ 2 chiều -> Hibernate dirty checking tự INSERT vào bảng trung gian
         s.enroll(c);
     }
+
+    // ===== TODO 21 =====
+    @Override
+    @Transactional                       // BẮT BUỘC: Thao tác ghi dữ liệu
+    public void unenroll(String studentCode, String courseCode) {
+        Student s = getStudent(studentCode);
+        Course c = getCourse(courseCode);
+
+        // Kiểm tra xem sinh viên có đang học môn này không
+        if (!s.getCourses().contains(c)) {
+            throw new IllegalStateException("Student not enrolled in course: " + courseCode);
+        }
+
+        // Gọi helper đồng bộ 2 chiều -> Hibernate dirty checking tự DELETE dòng trong student_courses
+        s.unenroll(c);
+    }
 }
