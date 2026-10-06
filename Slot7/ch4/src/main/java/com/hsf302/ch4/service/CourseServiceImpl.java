@@ -103,4 +103,12 @@ public class CourseServiceImpl implements CourseService {
         }
         return courseRepository.findTopEnrolledCourses(n);
     }
+
+    @Override
+    public List<Course> findByNameContainKeyWord(String keyword) {
+        if(keyword == null || keyword.isBlank()) {
+            throw new IllegalArgumentException("Keyword must not be blank");
+        }
+        return courseRepository.findByNameContainKeyWord(keyword);
+    }
 }

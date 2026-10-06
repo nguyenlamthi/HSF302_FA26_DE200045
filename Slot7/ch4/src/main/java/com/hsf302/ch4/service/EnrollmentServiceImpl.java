@@ -133,4 +133,17 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         }
         return studentRepository.getEnrollmentsByDepartment(deptCode);
     }
+
+    // ===== TODO 19 =====
+    @Override
+    public org.springframework.data.domain.Page<Student> findStudentsInCoursePage(String courseCode, int pageIndex, int size) {
+        if (courseCode == null || courseCode.isBlank()) {
+            throw new IllegalArgumentException("Course code must not be blank");
+        }
+        if (pageIndex < 0 || size <= 0) {
+            throw new IllegalArgumentException("pageIndex must be >= 0 and size must be > 0");
+        }
+        org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(pageIndex, size);
+        return studentRepository.findStudentsInCoursePage(courseCode, pageable);
+    }
 }

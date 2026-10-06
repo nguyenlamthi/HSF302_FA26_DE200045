@@ -64,4 +64,11 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
         ORDER BY COUNT(sc.student_id) DESC, c.code ASC
     """, nativeQuery = true)
     List<CourseEnrollmentCount> findTopEnrolledCourses(@Param("n") int n);
+
+    @Query("""
+        SELECT c
+        FROM Course c
+        WHERE LOWER(c.name) LIKE LOWER(CONCAT('%', :keyword, '%'))
+    """)
+    List<Course> findByNameContainKeyWord(@Param("keyword") String keyword);
 }

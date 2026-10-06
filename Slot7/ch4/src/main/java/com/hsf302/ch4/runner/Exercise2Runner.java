@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
@@ -30,11 +31,11 @@ public class Exercise2Runner implements CommandLineRunner {
     @Override
     public void run(String... args) {
         System.out.println("\n========== START EXERCISE 2 ==========");
-        partB();
-        partC();
+//        partB();
+//        partC();
         partD();
-        bonus();
-        partE();
+//        bonus();
+//        partE();
         System.out.println("\n========== END EXERCISE 2 ==========");
     }
 
@@ -58,6 +59,7 @@ public class Exercise2Runner implements CommandLineRunner {
         todo16();
         todo17();
         todo18();
+        todo19();
     }
 
     private void bonus() {
@@ -217,5 +219,26 @@ public class Exercise2Runner implements CommandLineRunner {
         list.forEach(e -> System.out.printf("   %s | %-15s | %s - %-40s | %d credits%n",
                 e.getStudentCode(), e.getFullName(), e.getCourseCode(), e.getCourseName(), e.getCredits()));
         System.out.println("   -> " + list.size() + " record(s)");
+    }
+
+    private void todoNhap() {
+        title("TODO Nhap: Find course by keyword");
+        printList("Courses", courseService.findByNameContainKeyWord("ment"));
+    }
+
+    // ===== TODO 19 =====
+    private void todo19() {
+        title("TODO 19: Paginate students of course (@Query + countQuery)");
+        int pageIndex = 0;
+        int size = 2;
+        Page<Student> page;
+        do {
+            page = enrollmentService.findStudentsInCoursePage("HSF302", pageIndex, size);
+            printList("HSF302 - page " + page.getNumber(), page.getContent());
+            System.out.println("   totalElements=" + page.getTotalElements()
+                    + ", totalPages=" + page.getTotalPages()
+                    + ", isLast=" + page.isLast());
+            pageIndex++;
+        } while (page.hasNext());
     }
 }

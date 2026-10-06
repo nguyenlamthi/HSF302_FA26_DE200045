@@ -143,4 +143,13 @@ public interface StudentRepository extends JpaRepository<Student, Long>,
         ORDER BY s.studentCode ASC, c.code ASC
     """)
     List<EnrollmentView> getEnrollmentsByDepartment(@Param("deptCode") String deptCode);
+
+    // ===== Exercise 2: TODO 19 =====
+    @Query(
+            value = "SELECT s FROM Student s JOIN s.courses c WHERE c.code = :courseCode ORDER BY s.fullName ASC",
+            countQuery = "SELECT COUNT(s) FROM Student s JOIN s.courses c WHERE c.code = :courseCode"
+    )
+    Page<Student> findStudentsInCoursePage(
+            @Param("courseCode") String courseCode,
+            org.springframework.data.domain.Pageable pageable);
 }

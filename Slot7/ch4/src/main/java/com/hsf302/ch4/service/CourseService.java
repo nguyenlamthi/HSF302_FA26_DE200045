@@ -36,4 +36,6 @@ public interface CourseService {
 
     // ===== TODO 17 =====
     List<com.hsf302.ch4.dto.CourseEnrollmentCount> findTopEnrolled(int n);
+
+    List<Course> findByNameContainKeyWord(String keyword);
 }
