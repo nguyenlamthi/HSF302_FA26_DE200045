@@ -4,6 +4,9 @@ import com.hsf302.chapter6.entity.Student;
 import com.hsf302.chapter6.service.StudentService;
 import jakarta.validation.Valid;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -30,9 +33,24 @@ public class StudentController {
     }
 
     @GetMapping
-    public String list(@RequestParam(value = "keyword", required = false) String keyword, Model model) {
-        model.addAttribute("students", studentService.search(keyword));
-        model.addAttribute("keyword", keyword);
+    public String list(@RequestParam(value = "keyword", required = false) String keyword,
+                       @RequestParam(value = "page", defaultValue = "0") int page,
+                       @RequestParam(value = "size", defaultValue = "2") int size,
+                       Model model) {
+
+        // 1. Tạo đối tượng Pageable (mặc định sắp xếp theo id tăng dần)
+        Pageable pageable = PageRequest.of(page, size, org.springframework.data.domain.Sort.by("id"));
+
+        // 2. Lấy dữ liệu phân trang từ Service
+        Page<Student> studentPage = studentService.findAllPaged(keyword, pageable);
+
+        // 3. Truyền dữ liệu ra View
+        model.addAttribute("studentPage", studentPage);
+        model.addAttribute("students", studentPage.getContent()); // Danh sách sinh viên của trang hiện tại
+        model.addAttribute("keyword", keyword);                   // Giữ lại từ khóa
+        model.addAttribute("currentPage", page);                  // Trang hiện tại
+        model.addAttribute("pageSize", size);                     // Kích cỡ trang
+
         return "students/list";
     }
 

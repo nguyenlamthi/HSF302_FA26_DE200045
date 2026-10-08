@@ -14,19 +14,19 @@
         </a>
     </div>
 
-    <!-- MỚI: Thanh tìm kiếm -->
+    <!-- Thanh tìm kiếm -->
     <div class="row mb-3">
         <div class="col-md-6">
             <form th:action="@{/students}" method="get" class="d-flex gap-2">
+                <input type="hidden" name="size" th:value="${pageSize}"/>
                 <div class="input-group">
                     <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
                     <input type="text" name="keyword" th:value="${keyword}"
                            class="form-control"
                            placeholder="Tìm kiếm theo tên hoặc email..."/>
                     <button type="submit" class="btn btn-primary">Tìm</button>
-                    <!-- Nút Hủy tìm kiếm (chỉ hiện khi đang có từ khóa) -->
                     <a th:if="${keyword != null and !keyword.isBlank()}"
-                       th:href="@{/students}" class="btn btn-outline-secondary" title="Xóa bộ lọc">
+                       th:href="@{/students(size=${pageSize})}" class="btn btn-outline-secondary" title="Xóa bộ lọc">
                         <i class="bi bi-x-lg"></i>
                     </a>
                 </div>
@@ -37,7 +37,7 @@
     <div class="card shadow-sm">
         <div class="card-body p-0">
 
-            <!-- Trường hợp không tìm thấy sinh viên nào -->
+            <!-- Trường hợp không có dữ liệu -->
             <div th:if="${#lists.isEmpty(students)}" class="text-center p-5 text-muted">
                 <i class="bi bi-search display-4"></i>
                 <p class="mt-2" th:if="${keyword != null and !keyword.isBlank()}">
@@ -46,7 +46,7 @@
                 <p class="mt-2" th:unless="${keyword != null and !keyword.isBlank()}">
                     Chưa có sinh viên nào.
                 </p>
-                <a th:if="${keyword != null and !keyword.isBlank()}" th:href="@{/students}" class="btn btn-sm btn-outline-primary">
+                <a th:if="${keyword != null and !keyword.isBlank()}" th:href="@{/students(size=${pageSize})}" class="btn btn-sm btn-outline-primary">
                     Xem tất cả sinh viên
                 </a>
                 <a th:unless="${keyword != null and !keyword.isBlank()}" th:href="@{/students/create}" class="btn btn-outline-primary">
@@ -54,7 +54,7 @@
                 </a>
             </div>
 
-            <!-- Bảng dữ liệu -->
+            <!-- Bảng hiển thị dữ liệu trang hiện tại -->
             <table th:unless="${#lists.isEmpty(students)}" class="table table-hover mb-0">
                 <thead>
                 <tr>
@@ -70,7 +70,8 @@
                 </thead>
                 <tbody>
                 <tr th:each="student, stat : ${students}">
-                    <td th:text="${stat.count}">1</td>
+                    <!-- Tính STT liên tục qua các trang: stat.count + (trangHiệnTại * kíchCỡTrang) -->
+                    <td th:text="${stat.count + (currentPage * pageSize)}">1</td>
                     <td th:text="${student.id}">1</td>
                     <td>
                         <a th:href="@{/students/{id}(id=${student.id})}"
@@ -107,15 +108,44 @@
                 </tbody>
             </table>
         </div>
-    </div>
 
-    <div th:unless="${#lists.isEmpty(students)}" class="text-muted mt-2">
-        <small th:if="${keyword != null and !keyword.isBlank()}">
-            Kết quả tìm kiếm cho "<strong th:text="${keyword}"></strong>": có <strong th:text="${#lists.size(students)}">0</strong> sinh viên
-        </small>
-        <small th:unless="${keyword != null and !keyword.isBlank()}">
-            Tổng: <strong th:text="${#lists.size(students)}">0</strong> sinh viên
-        </small>
+        <!-- MỚI: Thanh phân trang (Pagination) ở chân bảng -->
+        <div th:if="${studentPage.totalPages > 1}" class="card-footer bg-white d-flex justify-content-between align-items-center py-2">
+            <div>
+                <small class="text-muted">
+                    Trang <strong th:text="${currentPage + 1}">1</strong> / <strong th:text="${studentPage.totalPages}">1</strong>
+                    (Tổng số: <strong th:text="${studentPage.totalElements}">0</strong> sinh viên)
+                </small>
+            </div>
+            <nav aria-label="Page navigation">
+                <ul class="pagination pagination-sm mb-0">
+                    <!-- Nút Trước (Previous) -->
+                    <li class="page-item" th:classappend="${!studentPage.hasPrevious()} ? 'disabled'">
+                        <a class="page-link"
+                           th:href="@{/students(page=${currentPage - 1}, size=${pageSize}, keyword=${keyword})}">
+                            &laquo; Trước
+                        </a>
+                    </li>
+
+                    <!-- Các nút số trang 1, 2, 3... -->
+                    <li class="page-item"
+                        th:each="i : ${#numbers.sequence(0, studentPage.totalPages - 1)}"
+                        th:classappend="${i == currentPage} ? 'active'">
+                        <a class="page-link"
+                           th:href="@{/students(page=${i}, size=${pageSize}, keyword=${keyword})}"
+                           th:text="${i + 1}">1</a>
+                    </li>
+
+                    <!-- Nút Sau (Next) -->
+                    <li class="page-item" th:classappend="${!studentPage.hasNext()} ? 'disabled'">
+                        <a class="page-link"
+                           th:href="@{/students(page=${currentPage + 1}, size=${pageSize}, keyword=${keyword})}">
+                            Sau &raquo;
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
     </div>
 
 </section>

@@ -1,6 +1,9 @@
 package com.hsf302.chapter6.service;
 
 import com.hsf302.chapter6.entity.Student;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -15,4 +18,7 @@ public interface StudentService {
 
     // Thêm phương thức này vào trong interface StudentService
     List<Student> search(String keyword);
+
+    // Thêm vào StudentService.java
+    Page<Student> findAllPaged(String keyword, Pageable pageable);
 }
