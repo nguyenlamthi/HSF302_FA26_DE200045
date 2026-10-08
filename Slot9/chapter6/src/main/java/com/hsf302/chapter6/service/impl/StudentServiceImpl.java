@@ -76,4 +76,16 @@ public class StudentServiceImpl implements StudentService {
     public List<String> getMajors() {
         return List.of("CNTT", "KTPM", "HTTT", "ATTT", "MMT");
     }
+
+    @Override
+    public List<Student> search(String keyword) {
+        // Nếu người dùng không nhập gì (hoặc chỉ gõ dấu cách) -> Trả về tất cả
+        if (keyword == null || keyword.isBlank()) {
+            return findAll();
+        }
+        // Có từ khóa -> Tìm kiếm và sắp xếp theo ID tăng dần
+        String trimmed = keyword.trim();
+        return studentRepository.findByNameContainingIgnoreCaseOrEmailContainingIgnoreCase(
+                trimmed, trimmed, Sort.by(Sort.Direction.ASC, "id"));
+    }
 }

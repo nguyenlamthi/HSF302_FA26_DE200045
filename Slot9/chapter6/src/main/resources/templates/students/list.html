@@ -7,24 +7,54 @@
 <body>
 <section>
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
         <h2><i class="bi bi-people-fill me-2"></i>Danh sách sinh viên</h2>
         <a th:href="@{/students/create}" class="btn btn-primary">
             <i class="bi bi-plus-lg me-1"></i>Thêm sinh viên
         </a>
     </div>
 
+    <!-- MỚI: Thanh tìm kiếm -->
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <form th:action="@{/students}" method="get" class="d-flex gap-2">
+                <div class="input-group">
+                    <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                    <input type="text" name="keyword" th:value="${keyword}"
+                           class="form-control"
+                           placeholder="Tìm kiếm theo tên hoặc email..."/>
+                    <button type="submit" class="btn btn-primary">Tìm</button>
+                    <!-- Nút Hủy tìm kiếm (chỉ hiện khi đang có từ khóa) -->
+                    <a th:if="${keyword != null and !keyword.isBlank()}"
+                       th:href="@{/students}" class="btn btn-outline-secondary" title="Xóa bộ lọc">
+                        <i class="bi bi-x-lg"></i>
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div class="card shadow-sm">
         <div class="card-body p-0">
 
-            <!-- Trường hợp cơ sở dữ liệu chưa có sinh viên nào -->
+            <!-- Trường hợp không tìm thấy sinh viên nào -->
             <div th:if="${#lists.isEmpty(students)}" class="text-center p-5 text-muted">
-                <i class="bi bi-inbox display-4"></i>
-                <p class="mt-2">Chưa có sinh viên nào.</p>
-                <a th:href="@{/students/create}" class="btn btn-outline-primary">Thêm ngay</a>
+                <i class="bi bi-search display-4"></i>
+                <p class="mt-2" th:if="${keyword != null and !keyword.isBlank()}">
+                    Không tìm thấy sinh viên nào khớp với từ khóa: "<strong th:text="${keyword}"></strong>"
+                </p>
+                <p class="mt-2" th:unless="${keyword != null and !keyword.isBlank()}">
+                    Chưa có sinh viên nào.
+                </p>
+                <a th:if="${keyword != null and !keyword.isBlank()}" th:href="@{/students}" class="btn btn-sm btn-outline-primary">
+                    Xem tất cả sinh viên
+                </a>
+                <a th:unless="${keyword != null and !keyword.isBlank()}" th:href="@{/students/create}" class="btn btn-outline-primary">
+                    Thêm ngay
+                </a>
             </div>
 
-            <!-- Bảng hiển thị khi có dữ liệu -->
+            <!-- Bảng dữ liệu -->
             <table th:unless="${#lists.isEmpty(students)}" class="table table-hover mb-0">
                 <thead>
                 <tr>
@@ -56,17 +86,14 @@
                               th:text="${#numbers.formatDecimal(student.gpa, 1, 1)}">3.5</span>
                     </td>
                     <td class="text-center">
-                        <!-- Nút xem chi tiết -->
                         <a th:href="@{/students/{id}(id=${student.id})}"
                            class="btn btn-sm btn-outline-info me-1" title="Chi tiết">
                             <i class="bi bi-eye"></i>
                         </a>
-                        <!-- Nút sửa -->
                         <a th:href="@{/students/{id}/edit(id=${student.id})}"
                            class="btn btn-sm btn-outline-warning me-1" title="Sửa">
                             <i class="bi bi-pencil"></i>
                         </a>
-                        <!-- Form xóa -->
                         <form th:action="@{/students/{id}/delete(id=${student.id})}"
                               method="post" class="d-inline"
                               th:data-name="${student.name}"
@@ -83,7 +110,12 @@
     </div>
 
     <div th:unless="${#lists.isEmpty(students)}" class="text-muted mt-2">
-        <small>Tổng: <strong th:text="${#lists.size(students)}">0</strong> sinh viên</small>
+        <small th:if="${keyword != null and !keyword.isBlank()}">
+            Kết quả tìm kiếm cho "<strong th:text="${keyword}"></strong>": có <strong th:text="${#lists.size(students)}">0</strong> sinh viên
+        </small>
+        <small th:unless="${keyword != null and !keyword.isBlank()}">
+            Tổng: <strong th:text="${#lists.size(students)}">0</strong> sinh viên
+        </small>
     </div>
 
 </section>

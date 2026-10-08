@@ -12,4 +12,7 @@ public interface StudentService {
     boolean delete(Long id);
     boolean isEmailTaken(String email, Long excludeId);
     List<String> getMajors();
+
+    // Thêm phương thức này vào trong interface StudentService
+    List<Student> search(String keyword);
 }
