@@ -17,6 +17,7 @@ public class SinhVienController {
                 new SinhVien("SV002", "Trần Thị Bình", 6.2),
                 new SinhVien("SV003", "Lê Hoàng Cường", 7.0)
         );
+
         model.addAttribute("sinhViens", danhSach);
         model.addAttribute("tieuDe", "Danh sách sinh viên");
         return "sinhvien/danh-sach";      // → templates/sinhvien/danh-sach.html
