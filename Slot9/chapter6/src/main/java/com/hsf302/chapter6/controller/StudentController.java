@@ -7,6 +7,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -36,20 +37,34 @@ public class StudentController {
     public String list(@RequestParam(value = "keyword", required = false) String keyword,
                        @RequestParam(value = "page", defaultValue = "0") int page,
                        @RequestParam(value = "size", defaultValue = "2") int size,
+                       @RequestParam(value = "sortField", defaultValue = "id") String sortField,
+                       @RequestParam(value = "sortDir", defaultValue = "asc") String sortDir,
                        Model model) {
 
-        // 1. Tạo đối tượng Pageable (mặc định sắp xếp theo id tăng dần)
-        Pageable pageable = PageRequest.of(page, size, org.springframework.data.domain.Sort.by("id"));
+        // 1. Xác định chiều sắp xếp: desc nếu người dùng truyền "desc", ngược lại là asc
+        org.springframework.data.domain.Sort sort = sortDir.equalsIgnoreCase("desc")
+                ? org.springframework.data.domain.Sort.by(sortField).descending()
+                : org.springframework.data.domain.Sort.by(sortField).ascending();
 
-        // 2. Lấy dữ liệu phân trang từ Service
-        Page<Student> studentPage = studentService.findAllPaged(keyword, pageable);
+        // 2. Tạo Pageable kết hợp cả Trang (page), Kích cỡ (size) và Sắp xếp (sort)
+        org.springframework.data.domain.Pageable pageable =
+                org.springframework.data.domain.PageRequest.of(page, size, sort);
 
-        // 3. Truyền dữ liệu ra View
+        // 3. Lấy dữ liệu phân trang và sắp xếp từ Service
+        org.springframework.data.domain.Page<Student> studentPage = studentService.findAllPaged(keyword, pageable);
+
+        // 4. Đẩy toàn bộ dữ liệu ra Model cho View sử dụng
         model.addAttribute("studentPage", studentPage);
-        model.addAttribute("students", studentPage.getContent()); // Danh sách sinh viên của trang hiện tại
-        model.addAttribute("keyword", keyword);                   // Giữ lại từ khóa
-        model.addAttribute("currentPage", page);                  // Trang hiện tại
-        model.addAttribute("pageSize", size);                     // Kích cỡ trang
+        model.addAttribute("students", studentPage.getContent());
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("pageSize", size);
+
+        // MỚI: Truyền thông tin sort ra view
+        model.addAttribute("sortField", sortField);
+        model.addAttribute("sortDir", sortDir);
+        // Chiều đảo ngược: Nếu đang asc thì click tiếp thành desc, và ngược lại
+        model.addAttribute("reverseSortDir", sortDir.equalsIgnoreCase("asc") ? "desc" : "asc");
 
         return "students/list";
     }
