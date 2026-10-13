@@ -1,38 +1,33 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <title>Kết quả</title>
-    <link rel="stylesheet" th:href="@{/vendor/bootstrap/css/bootstrap.min.css}"/>
-    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+    <th:block th:replace="~{fragments/layout :: commonHead('Kết quả')}"></th:block>
 </head>
 <body>
-<main class="container py-4">
+<nav th:replace="~{fragments/layout :: navbar('sanpham')}"></nav>
 
-    <!-- 1. Flash message: Chỉ xuất hiện duy nhất 1 lần ngay sau khi Redirect -->
-    <div th:if="${thongBao}" class="alert alert-success" th:text="${thongBao}">
-        Thông báo mẫu
-    </div>
+<main class="container">
+    <!-- Dùng fragment alerts chung (hỗ trợ đóng thông báo ✕ và icon) -->
+    <th:block th:replace="~{fragments/layout :: alerts}"></th:block>
+
+    <!-- Giữ tương thích nếu vẫn dùng biến thongBao cũ -->
+    <div th:if="${thongBao}" class="alert alert-success" th:text="${thongBao}">Thông báo</div>
 
     <h3 class="h5">Danh sách hiện tại</h3>
 
-    <!-- 2. Danh sách sản phẩm (khi không rỗng) -->
     <ul class="list-group mb-3" th:unless="${#lists.isEmpty(danhSach)}">
         <li class="list-group-item" th:each="sp : ${danhSach}">
-            <!-- Cú pháp |...| (Literal substitution): Ghép chuỗi trực quan không cần dấu + -->
             <span th:text="|${sp.ten} - ${#numbers.formatDecimal(sp.gia, 1, 'POINT', 0, 'COMMA')} VNĐ (SL: ${sp.soLuong})|">
                 Tên - Giá (SL)
             </span>
         </li>
     </ul>
-
-    <!-- 3. Thông báo khi danh sách rỗng -->
     <p th:if="${#lists.isEmpty(danhSach)}" class="text-muted">Chưa có sản phẩm.</p>
 
-    <!-- 4. Nút quay lại trang thêm mới -->
     <a th:href="@{/sanpham/them}" class="btn btn-primary">Thêm tiếp</a>
-
 </main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
 </body>
 </html>

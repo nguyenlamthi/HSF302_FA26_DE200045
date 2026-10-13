@@ -26,14 +26,9 @@ public class SanPhamController {
 
     // 2. POST /sanpham/them – Nhận dữ liệu từ form, lưu và REDIRECT
     @PostMapping("/them")
-    public String xuLyForm(@ModelAttribute("sanPham") SanPham sanPham,
-                           RedirectAttributes ra) {
+    public String xuLyForm(@ModelAttribute("sanPham") SanPham sanPham, RedirectAttributes ra) {
         danhSach.add(sanPham);
-
-        // Flash attribute: Lưu tạm vào Session và tự xóa sau 1 lần redirect
-        ra.addFlashAttribute("thongBao", "Thêm sản phẩm thành công!");
-
-        // PRG Pattern: Redirect sang URL GET /sanpham/ket-qua (HTTP 302)
+        ra.addFlashAttribute("successMsg", "Thêm sản phẩm thành công!");   // khớp với fragment alerts
         return "redirect:/sanpham/ket-qua";
     }
 
