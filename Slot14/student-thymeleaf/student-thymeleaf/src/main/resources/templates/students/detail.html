@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}">
+<head>
+    <title>Chi tiết sinh viên</title>
+</head>
+<body>
+<section layout:fragment="content">
+    <div class="card shadow-sm mx-auto" style="max-width: 800px;">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center py-3">
+            <!-- 14.1: Tiêu đề thẻ gồm Mã SV và Họ tên -->
+            <h4 class="mb-0 fs-5" th:text="|${student.studentCode} - ${student.fullName}|">SE180001 - Nguyễn Văn An</h4>
+            <!-- 14.2: Badge trạng thái -->
+            <span class="badge"
+                  th:classappend="${student.active} ? 'text-bg-success' : 'text-bg-secondary'"
+                  th:text="${student.active} ? 'Đang học' : 'Bảo lưu'">Đang học</span>
+        </div>
+        <div class="card-body p-4">
+            <!-- 14.3: Thông tin chi tiết sinh viên -->
+            <dl class="row mb-0 gy-3">
+                <dt class="col-sm-3 text-muted">Mã sinh viên:</dt>
+                <dd class="col-sm-9 fw-semibold" th:text="${student.studentCode}">SE180001</dd>
+
+                <dt class="col-sm-3 text-muted">Họ và tên:</dt>
+                <dd class="col-sm-9 fw-semibold" th:text="${student.fullName}">Nguyễn Văn An</dd>
+
+                <dt class="col-sm-3 text-muted">Địa chỉ Email:</dt>
+                <dd class="col-sm-9">
+                    <a th:href="|mailto:${student.email}|"
+                       th:text="${student.email} ?: 'Chưa cập nhật'">annv@fpt.edu.vn</a>
+                </dd>
+
+                <dt class="col-sm-3 text-muted">Ngày sinh & Tuổi:</dt>
+                <dd class="col-sm-9"
+                    th:text="|${#temporals.format(student.dateOfBirth, 'dd/MM/yyyy')} (${student.age} tuổi)|">
+                    12/05/2004 (22 tuổi)
+                </dd>
+
+                <dt class="col-sm-3 text-muted">Chuyên ngành:</dt>
+                <dd class="col-sm-9"
+                    th:text="${student.major} + ' - ' + (${majors[student.major]} ?: 'Không xác định')">
+                    SE - Kỹ thuật phần mềm
+                </dd>
+
+                <dt class="col-sm-3 text-muted">Điểm GPA:</dt>
+                <dd class="col-sm-9 fw-bold text-primary"
+                    th:text="${#numbers.formatDecimal(student.gpa, 1, 2)} + ' / 10'">8.75 / 10</dd>
+
+                <dt class="col-sm-3 text-muted">Xếp loại học lực:</dt>
+                <dd class="col-sm-9">
+                    <span class="badge"
+                          th:classappend="${student.gpa ge 9.0} ? 'text-bg-success' : (${student.gpa ge 8.0} ? 'text-bg-primary' : (${student.gpa ge 6.5} ? 'text-bg-info' : (${student.gpa ge 5.0} ? 'text-bg-warning' : 'text-bg-danger')))"
+                          th:text="${student.rank}">Giỏi</span>
+                </dd>
+
+                <dt class="col-sm-3 text-muted">Xét học bổng:</dt>
+                <dd class="col-sm-9">
+                    <span th:class="${student.gpa ge 8.0 and student.active} ? 'text-success fw-bold' : 'text-muted'"
+                          th:text="${student.gpa ge 8.0 and student.active} ? 'Đủ điều kiện xét học bổng' : 'Không đủ điều kiện xét học bổng'">
+                        Đủ điều kiện xét học bổng
+                    </span>
+                </dd>
+            </dl>
+
+            <!-- 14.4: Minh họa Selection Expression th:object + *{...} -->
+            <hr class="my-4">
+            <div th:object="${student}" class="small text-muted bg-light p-2 rounded">
+                <span class="fw-semibold">Selection Expression Demo: </span>
+                <span th:text="*{fullName}">Nguyễn Văn An</span> –
+                <span th:text="*{email}">annv@fpt.edu.vn</span>
+            </div>
+        </div>
+        <div class="card-footer bg-white d-flex justify-content-between py-3">
+            <!-- 14.5: Nút quay lại và nút sửa -->
+            <a th:href="@{/students}" class="btn btn-secondary">&larr; Quay lại danh sách</a>
+            <a th:href="@{/students/{id}/edit(id=${student.id})}" class="btn btn-warning">Chỉnh sửa thông tin</a>
+        </div>
+    </div>
+</section>
+</body>
+</html>
