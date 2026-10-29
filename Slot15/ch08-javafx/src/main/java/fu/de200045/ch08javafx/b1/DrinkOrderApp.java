@@ -2,6 +2,7 @@ package fu.de200045.ch08javafx.b1;
 
 import javafx.application.Application;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -86,7 +87,7 @@ public class DrinkOrderApp extends Application {
         VBox root = new VBox(12, title, form, buttons, lblResult, new Label("Nhật ký sự kiện:"), taLog);
         root.setPadding(new Insets(16));
 
-        // Đăng ký sự kiện
+        // Gọi đăng ký toàn bộ sự kiện
         registerEvents();
 
         Scene scene = new Scene(root, 540, 580);
@@ -97,19 +98,70 @@ public class DrinkOrderApp extends Application {
         tfName.requestFocus();
     }
 
+    // =========================================================================
+    // BƯỚC 4: Viết registerEvents()
+    // =========================================================================
     private void registerEvents() {
-        // =========================================================================
-        // TODO 4: Cách 1 — method reference (gọn gàng khi logic nghiệp vụ dài)
-        // =========================================================================
+        // Cách 1: Method reference
         btnCalc.setOnAction(this::handleCalc);
+
+        // Cách 2: Lambda
+        btnClear.setOnAction(e -> {
+            reset();
+            log("Bấm Làm lại");
+        });
+
+        // Cách 3: Anonymous class
+        cbDrink.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                String d = cbDrink.getValue();
+                if (d != null) {
+                    log("Chọn đồ uống: %s (%,d đ)".formatted(d, MENU.get(d)));
+                }
+            }
+        });
+
+        // TextField: nhấn Enter -> chuyển focus sang ComboBox chọn đồ uống
+        tfName.setOnAction(e -> cbDrink.requestFocus());
+
+        // Handler dùng chung cho cả 3 CheckBox qua getSource()
+        EventHandler<ActionEvent> onCheck = e -> {
+            CheckBox src = (CheckBox) e.getSource();
+            log("%s: %s".formatted(src.getText(), src.isSelected() ? "chọn" : "bỏ chọn"));
+        };
+        chkPearl.setOnAction(onCheck);
+        chkJelly.setOnAction(onCheck);
+        chkLessSugar.setOnAction(onCheck);
+
+        // ChangeListener: Lắng nghe giá trị size thay đổi
+        tgSize.selectedToggleProperty().addListener((obs, oldT, newT) -> {
+            if (newT != null) log("Đổi size → " + ((RadioButton) newT).getText());
+        });
+
+        // ChangeListener: Lắng nghe ô số lượng - chỉ cho gõ tối đa 2 chữ số (chặn chữ)
+        tfQty.textProperty().addListener((obs, oldV, newV) -> {
+            if (!newV.matches("\\d{0,2}")) tfQty.setText(oldV);
+        });
     }
 
-    // Method được tham chiếu bởi this::handleCalc (TODO 4)
     private void handleCalc(ActionEvent e) {
         log("Bấm nút Tính tiền (Method Reference)");
     }
 
-    // Tiện ích ghi nhật ký kèm mốc thời gian HH:mm:ss
+    private void reset() {
+        tfName.clear();
+        cbDrink.setValue(null);
+        tgSize.selectToggle(rbM);
+        chkPearl.setSelected(false);
+        chkJelly.setSelected(false);
+        chkLessSugar.setSelected(false);
+        tfQty.setText("1");
+        lblResult.setStyle("");
+        lblResult.setText("Chưa có đơn hàng");
+        tfName.requestFocus();
+    }
+
     private void log(String msg) {
         taLog.appendText("[%s] %s%n".formatted(
                 LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")), msg));
