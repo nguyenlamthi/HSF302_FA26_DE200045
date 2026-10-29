@@ -1,10 +1,14 @@
 package fu.de200045.ch08javafx.b3;
 
 import javafx.application.Application;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.geometry.VPos;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.StackPane;
+import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
 public class RegisterApp extends Application {
@@ -44,18 +48,14 @@ public class RegisterApp extends Application {
 
     @Override
     public void start(Stage stage) {
-        // Cấu hình controls
         setupControls();
-
-        scene = new Scene(new StackPane(new Label("B3 - Đã cấu hình xong controls")), 580, 660);
+        registerView = buildRegisterView();
+        scene = new Scene(registerView, 580, 660);
         stage.setScene(scene);
         stage.setTitle("B3 - Đăng ký & Đăng nhập");
         stage.show();
     }
 
-    // =========================================================================
-    // BƯỚC 2: Cấu hình control & Binding
-    // =========================================================================
     private void setupControls() {
         tfFullName.setPromptText("Nguyễn Văn An");
         tfEmail.setPromptText("abc@example.com");
@@ -63,26 +63,81 @@ public class RegisterApp extends Application {
         pfPassword.setPromptText("≥ 8 ký tự, có hoa, thường, số, ký tự đặc biệt");
         pfConfirm.setPromptText("Nhập lại mật khẩu");
 
-        // Gom nhóm RadioButton giới tính
         rbMale.setToggleGroup(tgGender);
         rbFemale.setToggleGroup(tgGender);
         rbOther.setToggleGroup(tgGender);
 
-        // Ngày sinh: cấm gõ tay, chỉ cho chọn từ lịch
         dpDob.setPromptText("Chọn ngày sinh");
         dpDob.setEditable(false);
         dpDob.setMaxWidth(Double.MAX_VALUE);
 
-        // Đổ danh sách ngành học vào ComboBox
         cbMajor.getItems().addAll("Kỹ thuật phần mềm", "Trí tuệ nhân tạo", "An toàn thông tin", "Thiết kế đồ họa");
         cbMajor.setPromptText("-- Chọn ngành --");
         cbMajor.setMaxWidth(Double.MAX_VALUE);
 
         pbStrength.setPrefWidth(140);
 
-        // BINDING: Nút Đăng ký chỉ sáng khi đã tích "Đồng ý điều khoản"
         btnRegister.disableProperty().bind(chkAgree.selectedProperty().not());
         btnRegister.setDefaultButton(true);
+    }
+
+    // =========================================================================
+    // BƯỚC 3: Giao diện — GridPane 2 cột, mỗi ô nhập kèm label lỗi bên dưới
+    // =========================================================================
+    private Parent buildRegisterView() {
+        GridPane grid = new GridPane();
+        grid.setHgap(12);
+        grid.setVgap(6);
+        int r = 0;
+        addField(grid, r++, "Họ tên *", tfFullName, errFullName);
+        addField(grid, r++, "Email *", tfEmail, errEmail);
+        addField(grid, r++, "Username *", tfUsername, errUsername);
+
+        // Thanh đo độ mạnh mật khẩu đặt cùng hàng dưới ô password
+        HBox strength = new HBox(8, pbStrength, lblStrength);
+        strength.setAlignment(Pos.CENTER_LEFT);
+        addField(grid, r++, "Mật khẩu *", new VBox(4, pfPassword, strength), errPassword);
+
+        addField(grid, r++, "Xác nhận MK *", pfConfirm, errConfirm);
+        addField(grid, r++, "Giới tính *", new HBox(15, rbMale, rbFemale, rbOther), errGender);
+        addField(grid, r++, "Ngày sinh *", dpDob, errDob);
+        addField(grid, r++, "Ngành *", cbMajor, errMajor);
+        addField(grid, r++, "Sở thích", new FlowPane(12, 6, chkSport, chkMusic, chkGame, chkReading), null);
+
+        ColumnConstraints c0 = new ColumnConstraints(110);
+        ColumnConstraints c1 = new ColumnConstraints();
+        c1.setHgrow(Priority.ALWAYS);
+        grid.getColumnConstraints().addAll(c0, c1);
+
+        Label title = new Label("ĐĂNG KÝ TÀI KHOẢN");
+        title.setStyle("-fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: #1a73e8;");
+
+        HBox actions = new HBox(10, btnRegister, btnReset);
+        actions.setAlignment(Pos.CENTER_RIGHT);
+
+        Hyperlink linkLogin = new Hyperlink("Đã có tài khoản? Đăng nhập");
+        linkLogin.setOnAction(e -> scene.setRoot(buildLoginView("")));
+
+        VBox form = new VBox(12, title, grid, chkAgree, actions, linkLogin);
+        form.setPadding(new Insets(20));
+
+        ScrollPane sp = new ScrollPane(form);   // Giữ cho form luôn cuộn được, không bị cắt xén
+        sp.setFitToWidth(true);
+        return sp;
+    }
+
+    // Helper: đưa ô nhập và nhãn lỗi tương ứng vào 1 ô lưới
+    private void addField(GridPane grid, int row, String label, Node input, Label error) {
+        Label lbl = new Label(label);
+        lbl.setPadding(new Insets(4, 0, 0, 0));
+        GridPane.setValignment(lbl, VPos.TOP);  // Canh nhãn theo dòng đầu tiên của ô nhập
+        grid.add(lbl, 0, row);
+        grid.add(error == null ? input : new VBox(2, input, error), 1, row);
+    }
+
+    // Tạm tạo stub đăng nhập để Bước 3 biên dịch hoàn hảo
+    private Parent buildLoginView(String prefillUser) {
+        return new StackPane(new Label("Màn hình đăng nhập (sẽ hoàn thiện ở Bước 6)"));
     }
 
     private static Label err() {
