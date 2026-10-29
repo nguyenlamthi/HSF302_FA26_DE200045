@@ -1,5 +1,6 @@
 package fu.de200045.ch08javafx.b3;
 
+import fu.de200045.ch08javafx.common.AlertUtil;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -13,6 +14,8 @@ import javafx.stage.Stage;
 
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.function.BooleanSupplier;
+import java.util.stream.Stream;
 
 public class RegisterApp extends Application {
 
@@ -52,6 +55,7 @@ public class RegisterApp extends Application {
     @Override
     public void start(Stage stage) {
         setupControls();
+        registerEvents(); // Gọi đăng ký sự kiện
         registerView = buildRegisterView();
         scene = new Scene(registerView, 580, 660);
         stage.setScene(scene);
@@ -134,9 +138,58 @@ public class RegisterApp extends Application {
     }
 
     // =========================================================================
-    // BƯỚC 4: Các hàm Validator vXxx() & Đánh giá độ mạnh mật khẩu
+    // BƯỚC 5: Đăng ký sự kiện & Xử lý Reset Form
     // =========================================================================
-    // Helper: gán lỗi nếu không ok, trả về boolean kết quả
+    private void registerEvents() {
+        // 5a. Ô gõ văn bản: Validate khi RỜI KHỎI ô (mất focus)
+        onFocusLost(tfFullName, this::vFullName);
+        onFocusLost(tfEmail, this::vEmail);
+        onFocusLost(tfUsername, this::vUsername);
+        onFocusLost(pfPassword, this::vPassword);
+        onFocusLost(pfConfirm, this::vConfirm);
+
+        // 5b. Control chọn: Validate ngay khi giá trị thay đổi
+        tgGender.selectedToggleProperty().addListener((obs, o, n) -> vGender());
+        dpDob.valueProperty().addListener((obs, o, n) -> vDob());
+        cbMajor.valueProperty().addListener((obs, o, n) -> vMajor());
+
+        // 5c. Thanh đo độ mạnh mật khẩu: Cập nhật real-time theo từng phím gõ
+        pfPassword.textProperty().addListener((obs, o, n) -> updateStrength(n));
+
+        // 5d. Các nút bấm
+        btnRegister.setOnAction(e -> handleRegister());
+        btnReset.setOnAction(e -> {
+            if (AlertUtil.confirm("Xóa toàn bộ dữ liệu đã nhập?")) {
+                resetForm();
+            }
+        });
+    }
+
+    // Helper: Lắng nghe sự kiện mất focus của control
+    private void onFocusLost(Node node, BooleanSupplier validator) {
+        node.focusedProperty().addListener((obs, wasFocused, isFocused) -> {
+            if (!isFocused) validator.getAsBoolean();
+        });
+    }
+
+    // Đưa toàn bộ form đăng ký về trạng thái ban đầu
+    private void resetForm() {
+        Stream.of(tfFullName, tfEmail, tfUsername, pfPassword, pfConfirm).forEach(TextInputControl::clear);
+        tgGender.selectToggle(null);
+        dpDob.setValue(null);
+        cbMajor.setValue(null);
+        Stream.of(chkSport, chkMusic, chkGame, chkReading, chkAgree).forEach(c -> c.setSelected(false));
+
+        // Xóa sạch nhãn lỗi ở SAU CÙNG (tránh bị listener ở 5b ghi đè lại)
+        Stream.of(errFullName, errEmail, errUsername, errPassword, errConfirm, errGender, errDob, errMajor)
+                .forEach(l -> l.setText(""));
+        tfFullName.requestFocus();
+    }
+
+    private void handleRegister() {
+        // Sẽ viết chi tiết ở Bước 6
+    }
+
     private boolean check(Label err, boolean ok, String msg) {
         err.setText(ok ? "" : msg);
         return ok;
@@ -184,7 +237,6 @@ public class RegisterApp extends Application {
         return check(errMajor, cbMajor.getValue() != null, "Vui lòng chọn ngành");
     }
 
-    // Đánh giá độ mạnh mật khẩu từ 0 đến 4 điểm
     private void updateStrength(String s) {
         int score = 0;
         if (s.length() >= 8) score++;
@@ -193,7 +245,7 @@ public class RegisterApp extends Application {
         if (s.matches(".*[^\\w\\s].*")) score++;
 
         pbStrength.setProgress(score / 4.0);
-        pbStrength.setStyle("-fx-accent: " + LEVEL_COLOR[score] + ";");   // Đổi màu thanh tiến trình
+        pbStrength.setStyle("-fx-accent: " + LEVEL_COLOR[score] + ";");
         lblStrength.setText(s.isEmpty() ? "" : LEVEL_TEXT[score]);
         lblStrength.setStyle("-fx-text-fill: " + LEVEL_COLOR[score] + ";");
     }
