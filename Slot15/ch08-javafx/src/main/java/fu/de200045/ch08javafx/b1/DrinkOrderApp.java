@@ -7,6 +7,8 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -91,6 +93,17 @@ public class DrinkOrderApp extends Application {
 
         Scene scene = new Scene(root, 540, 580);
 
+        // =========================================================================
+        // BƯỚC 6 (phần 1): Event FILTER trên Scene — bắt phím ESC ở pha capturing
+        // =========================================================================
+        scene.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
+            if (e.getCode() == KeyCode.ESCAPE) {
+                reset();
+                log("ESC → làm lại form");
+                e.consume(); // Chặn không cho sự kiện lan truyền tiếp
+            }
+        });
+
         stage.setScene(scene);
         stage.setTitle("B1 - Controls & Sự kiện");
         stage.show();
@@ -132,35 +145,39 @@ public class DrinkOrderApp extends Application {
         tfQty.textProperty().addListener((obs, oldV, newV) -> {
             if (!newV.matches("\\d{0,2}")) tfQty.setText(oldV);
         });
+
+        // =========================================================================
+        // BƯỚC 6 (phần 2): MouseEvent
+        // =========================================================================
+        // Rê chuột vào/ra nút Tính tiền để đổi màu
+        btnCalc.setOnMouseEntered(e -> btnCalc.setStyle("-fx-background-color: #1a73e8; -fx-text-fill: white;"));
+        btnCalc.setOnMouseExited(e -> btnCalc.setStyle(""));
+
+        // Double-click vào vùng nhật ký để xóa sạch nội dung
+        taLog.setOnMouseClicked(e -> {
+            if (e.getClickCount() == 2) taLog.clear();
+        });
     }
 
-    // =========================================================================
-    // BƯỚC 5: Xử lý chính — đọc giá trị, validate, tính tiền
-    // =========================================================================
     private void handleCalc(ActionEvent e) {
         String name = tfName.getText().trim();
         String drink = cbDrink.getValue();
         String qtyText = tfQty.getText();
 
-        // 1. Kiểm tra tính hợp lệ (Validation)
         if (name.isEmpty()) { showError("Vui lòng nhập tên khách"); tfName.requestFocus(); return; }
         if (drink == null) { showError("Vui lòng chọn đồ uống"); cbDrink.requestFocus(); return; }
         if (tgSize.getSelectedToggle() == null) { showError("Vui lòng chọn size"); return; }
         int qty = qtyText.isEmpty() ? 0 : Integer.parseInt(qtyText);
         if (qty < 1 || qty > 20) { showError("Số lượng từ 1 đến 20"); tfQty.requestFocus(); return; }
 
-        // 2. Tính đơn giá
         RadioButton size = (RadioButton) tgSize.getSelectedToggle();
         int unit = MENU.get(drink) + (int) size.getUserData();
         if (chkPearl.isSelected()) unit += TOPPING_PRICE;
         if (chkJelly.isSelected()) unit += TOPPING_PRICE;
-
-        // 3. Tính tổng tiền & giảm giá
         int total = unit * qty;
         boolean discount = qty >= 5;
         if (discount) total = total * 90 / 100;
 
-        // 4. Hiển thị kết quả màu xanh lá
         lblResult.setStyle("-fx-text-fill: #188038; -fx-font-weight: bold;");
         lblResult.setText("%s: %d × %s size %s%s → %,d đ%s".formatted(
                 name, qty, drink, size.getText().charAt(0),
@@ -175,7 +192,6 @@ public class DrinkOrderApp extends Application {
         log("Lỗi: " + msg);
     }
 
-    // Đưa form về trạng thái ban đầu
     private void reset() {
         tfName.clear();
         cbDrink.setValue(null);
