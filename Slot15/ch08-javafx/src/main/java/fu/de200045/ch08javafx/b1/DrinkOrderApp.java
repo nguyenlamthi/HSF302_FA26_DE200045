@@ -1,8 +1,12 @@
 package fu.de200045.ch08javafx.b1;
 
 import javafx.application.Application;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
@@ -39,36 +43,54 @@ public class DrinkOrderApp extends Application {
 
     @Override
     public void start(Stage stage) {
-        // ==========================================
         // TODO 2: Cấu hình control
-        // ==========================================
         tfName.setPromptText("Nhập tên khách hàng");
 
         cbDrink.getItems().addAll(MENU.keySet());
         cbDrink.setPromptText("-- Chọn đồ uống --");
         cbDrink.setMaxWidth(Double.MAX_VALUE);
 
-        // Gom nhóm RadioButton size
         rbS.setToggleGroup(tgSize);
         rbM.setToggleGroup(tgSize);
         rbL.setToggleGroup(tgSize);
-        // Gắn phụ thu tương ứng vào userData
         rbS.setUserData(0);
         rbM.setUserData(5_000);
         rbL.setUserData(10_000);
-        tgSize.selectToggle(rbM);            // Mặc định chọn size M
+        tgSize.selectToggle(rbM);
 
         tfQty.setPrefColumnCount(4);
-        taLog.setEditable(false);           // Nhật ký chỉ đọc
+        taLog.setEditable(false);
         taLog.setPrefRowCount(8);
         taLog.setTooltip(new Tooltip("Double-click để xóa nhật ký"));
-        btnCalc.setDefaultButton(true);     // Phím Enter = bấm "Tính tiền"
+        btnCalc.setDefaultButton(true);
 
-        // Tạm giữ root đơn giản để kiểm tra compile TODO 2
-        VBox root = new VBox(new Label("TODO 2: Đã cấu hình xong các controls"));
-        stage.setScene(new Scene(root, 400, 200));
-        stage.setTitle("B1 - DrinkOrderApp");
+        // ==========================================
+        // TODO 3: Xếp layout
+        // ==========================================
+        GridPane form = new GridPane();
+        form.setHgap(10);
+        form.setVgap(10);
+        form.addRow(0, new Label("Tên khách:"), tfName);
+        form.addRow(1, new Label("Đồ uống:"), cbDrink);
+        form.addRow(2, new Label("Size:"), new HBox(15, rbS, rbM, rbL));
+        form.addRow(3, new Label("Tùy chọn:"), new HBox(15, chkPearl, chkJelly, chkLessSugar));
+        form.addRow(4, new Label("Số lượng:"), tfQty);
+
+        HBox buttons = new HBox(10, btnCalc, btnClear);
+        buttons.setAlignment(Pos.CENTER_RIGHT);
+
+        Label title = new Label("ĐẶT ĐỒ UỐNG");
+        title.setStyle("-fx-font-size: 18; -fx-font-weight: bold;");
+
+        VBox root = new VBox(12, title, form, buttons, lblResult, new Label("Nhật ký sự kiện:"), taLog);
+        root.setPadding(new Insets(16));
+
+        Scene scene = new Scene(root, 540, 580);
+
+        stage.setScene(scene);
+        stage.setTitle("B1 - Controls & Sự kiện");
         stage.show();
+        tfName.requestFocus();
     }
 
     public static void main(String[] args) {
