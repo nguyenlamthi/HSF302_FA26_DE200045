@@ -19,7 +19,6 @@ import java.util.Map;
 
 public class LoginLayoutApp extends Application {
 
-    // Tài khoản mẫu: admin/Admin@123 và student/Student@123
     private static final Map<String, String> ACCOUNTS = Map.of(
             "admin", "Admin@123",
             "student", "Student@123");
@@ -98,8 +97,8 @@ public class LoginLayoutApp extends Application {
 
         Button btnLogin = new Button("Đăng nhập");
         Button btnExit = new Button("Thoát");
-        btnLogin.setDefaultButton(true);            // Phím Enter
-        btnExit.setCancelButton(true);              // Phím ESC
+        btnLogin.setDefaultButton(true);
+        btnExit.setCancelButton(true);
         for (Button b : List.of(btnLogin, btnExit)) {
             b.setMaxWidth(Double.MAX_VALUE);
             HBox.setHgrow(b, Priority.ALWAYS);
@@ -118,21 +117,16 @@ public class LoginLayoutApp extends Application {
         center.setPadding(new Insets(20));
         center.setStyle("-fx-background-color: #eceff1;");
 
-        // =========================================================================
-        // BƯỚC 5: Xử lý sự kiện đăng nhập, thoát và xóa lỗi
-        // =========================================================================
         btnLogin.setOnAction(e -> {
             String user = tfUser.getText().trim().toLowerCase();
             String pass = pfPass.getText();
 
-            // 1. Kiểm tra rỗng
             if (user.isEmpty() || pass.isEmpty()) {
                 lblError.setText("Vui lòng nhập đầy đủ username và password");
                 (user.isEmpty() ? tfUser : pfPass).requestFocus();
                 return;
             }
 
-            // 2. Kiểm tra tài khoản & mật khẩu
             if (!pass.equals(ACCOUNTS.get(user))) {
                 lblError.setText("Sai username hoặc mật khẩu");
                 pfPass.clear();
@@ -140,9 +134,8 @@ public class LoginLayoutApp extends Application {
                 return;
             }
 
-            // 3. Đăng nhập thành công -> lưu nhớ và chuyển sang Trang chủ
             rememberedUser = chkRemember.isSelected() ? user : null;
-            scene.setRoot(buildHomeView(user));     // CHUYỂN MÀN HÌNH: đổi root Scene
+            scene.setRoot(buildHomeView(user));     // Chuyển sang Trang chủ
         });
 
         btnExit.setOnAction(e -> {
@@ -151,13 +144,11 @@ public class LoginLayoutApp extends Application {
             }
         });
 
-        // Tự động xóa thông báo lỗi khi người dùng gõ lại
         tfUser.textProperty().addListener((obs, o, n) -> lblError.setText(""));
         pfPass.textProperty().addListener((obs, o, n) -> {
             if (!n.isEmpty()) lblError.setText("");
         });
 
-        // Focus thông minh khi mở màn hình
         Platform.runLater(() -> (tfUser.getText().isEmpty() ? tfUser : pfPass).requestFocus());
 
         track(grid);
@@ -166,11 +157,40 @@ public class LoginLayoutApp extends Application {
         return track(center);
     }
 
-    // Tạm thời tạo giao diện Trang chủ đơn giản để kiểm tra Bước 5 (sẽ hoàn thiện ở Bước 6)
+    // =========================================================================
+    // BƯỚC 6: Trang chủ — BorderPane: top header, left menu VBox, center lời chào
+    // =========================================================================
     private Parent buildHomeView(String user) {
-        Label lblHello = new Label("Xin chào, " + user + "!\n(Đăng nhập thành công, sẽ hoàn thiện ở Bước 6)");
-        lblHello.setStyle("-fx-font-size: 20;");
-        return new StackPane(lblHello);
+        containers.clear();
+        Label lblHello = new Label("Xin chào, " + user + "!");
+        lblHello.setStyle("-fx-font-size: 22;");
+
+        VBox menu = new VBox(8);
+        for (String item : List.of("Trang chủ", "Sinh viên", "Môn học", "Điểm")) {
+            Button b = new Button(item);
+            b.setMaxWidth(Double.MAX_VALUE);        // Nút giãn bằng chiều rộng menu
+            b.setOnAction(e -> lblHello.setText("Bạn đang ở: " + item));
+            menu.getChildren().add(b);
+        }
+
+        // Spacer chiếm hết chiều cao -> "đẩy" nút Đăng xuất xuống sát đáy menu
+        Region spacer = new Region();
+        VBox.setVgrow(spacer, Priority.ALWAYS);
+
+        Button btnLogout = new Button("Đăng xuất");
+        btnLogout.setMaxWidth(Double.MAX_VALUE);
+        // Bấm Đăng xuất -> Quay lại màn hình đăng nhập
+        btnLogout.setOnAction(e -> scene.setRoot(buildLoginView()));
+
+        menu.getChildren().addAll(spacer, btnLogout);
+        menu.setPadding(new Insets(10));
+        menu.setPrefWidth(160);
+        menu.setStyle("-fx-background-color: #37474f;");
+
+        BorderPane root = new BorderPane(new StackPane(lblHello));  // BorderPane(center)
+        root.setTop(buildHeader());
+        root.setLeft(menu);
+        return root;
     }
 
     private Node buildFooter() {
