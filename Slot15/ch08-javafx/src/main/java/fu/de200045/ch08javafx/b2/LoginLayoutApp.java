@@ -1,6 +1,8 @@
 package fu.de200045.ch08javafx.b2;
 
+import fu.de200045.ch08javafx.common.AlertUtil;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -17,6 +19,7 @@ import java.util.Map;
 
 public class LoginLayoutApp extends Application {
 
+    // Tài khoản mẫu: admin/Admin@123 và student/Student@123
     private static final Map<String, String> ACCOUNTS = Map.of(
             "admin", "Admin@123",
             "student", "Student@123");
@@ -30,7 +33,6 @@ public class LoginLayoutApp extends Application {
 
     @Override
     public void start(Stage stage) {
-        // Khởi tạo Scene với root lấy từ buildLoginView()
         scene = new Scene(buildLoginView(), 680, 480);
         stage.setScene(scene);
         stage.setTitle("B2 - Layout & Form đăng nhập");
@@ -39,11 +41,8 @@ public class LoginLayoutApp extends Application {
         stage.show();
     }
 
-    // =========================================================================
-    // BƯỚC 4: Khung chính — BorderPane 3 vùng top / center / bottom
-    // =========================================================================
     private Parent buildLoginView() {
-        containers.clear(); // Xóa các container cũ trước khi dựng lại
+        containers.clear();
         BorderPane root = new BorderPane();
         root.setTop(buildHeader());
         root.setCenter(buildCenter());
@@ -99,8 +98,8 @@ public class LoginLayoutApp extends Application {
 
         Button btnLogin = new Button("Đăng nhập");
         Button btnExit = new Button("Thoát");
-        btnLogin.setDefaultButton(true);
-        btnExit.setCancelButton(true);
+        btnLogin.setDefaultButton(true);            // Phím Enter
+        btnExit.setCancelButton(true);              // Phím ESC
         for (Button b : List.of(btnLogin, btnExit)) {
             b.setMaxWidth(Double.MAX_VALUE);
             HBox.setHgrow(b, Priority.ALWAYS);
@@ -119,10 +118,59 @@ public class LoginLayoutApp extends Application {
         center.setPadding(new Insets(20));
         center.setStyle("-fx-background-color: #eceff1;");
 
+        // =========================================================================
+        // BƯỚC 5: Xử lý sự kiện đăng nhập, thoát và xóa lỗi
+        // =========================================================================
+        btnLogin.setOnAction(e -> {
+            String user = tfUser.getText().trim().toLowerCase();
+            String pass = pfPass.getText();
+
+            // 1. Kiểm tra rỗng
+            if (user.isEmpty() || pass.isEmpty()) {
+                lblError.setText("Vui lòng nhập đầy đủ username và password");
+                (user.isEmpty() ? tfUser : pfPass).requestFocus();
+                return;
+            }
+
+            // 2. Kiểm tra tài khoản & mật khẩu
+            if (!pass.equals(ACCOUNTS.get(user))) {
+                lblError.setText("Sai username hoặc mật khẩu");
+                pfPass.clear();
+                pfPass.requestFocus();
+                return;
+            }
+
+            // 3. Đăng nhập thành công -> lưu nhớ và chuyển sang Trang chủ
+            rememberedUser = chkRemember.isSelected() ? user : null;
+            scene.setRoot(buildHomeView(user));     // CHUYỂN MÀN HÌNH: đổi root Scene
+        });
+
+        btnExit.setOnAction(e -> {
+            if (AlertUtil.confirm("Bạn muốn thoát ứng dụng?")) {
+                Platform.exit();
+            }
+        });
+
+        // Tự động xóa thông báo lỗi khi người dùng gõ lại
+        tfUser.textProperty().addListener((obs, o, n) -> lblError.setText(""));
+        pfPass.textProperty().addListener((obs, o, n) -> {
+            if (!n.isEmpty()) lblError.setText("");
+        });
+
+        // Focus thông minh khi mở màn hình
+        Platform.runLater(() -> (tfUser.getText().isEmpty() ? tfUser : pfPass).requestFocus());
+
         track(grid);
         track(actions);
         track(card);
         return track(center);
+    }
+
+    // Tạm thời tạo giao diện Trang chủ đơn giản để kiểm tra Bước 5 (sẽ hoàn thiện ở Bước 6)
+    private Parent buildHomeView(String user) {
+        Label lblHello = new Label("Xin chào, " + user + "!\n(Đăng nhập thành công, sẽ hoàn thiện ở Bước 6)");
+        lblHello.setStyle("-fx-font-size: 20;");
+        return new StackPane(lblHello);
     }
 
     private Node buildFooter() {
