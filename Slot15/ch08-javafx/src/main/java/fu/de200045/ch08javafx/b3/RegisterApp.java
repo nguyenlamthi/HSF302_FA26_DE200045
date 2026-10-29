@@ -9,7 +9,6 @@ import javafx.stage.Stage;
 
 public class RegisterApp extends Application {
 
-    // Regex mật khẩu mạnh: ít nhất 8 ký tự, có chữ thường, chữ hoa, số và ký tự đặc biệt
     private static final String STRONG_PASSWORD = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^\\w\\s]).{8,}$";
     private static final String[] LEVEL_TEXT  = {"Rất yếu", "Yếu", "Trung bình", "Khá", "Mạnh"};
     private static final String[] LEVEL_COLOR = {"#d93025", "#d93025", "#f29900", "#1a73e8", "#188038"};
@@ -17,7 +16,7 @@ public class RegisterApp extends Application {
     private Scene scene;
     private Parent registerView;
 
-    // ===== Khai báo Controls cho Form Đăng Ký =====
+    // ===== Controls =====
     private final TextField tfFullName = new TextField();
     private final TextField tfEmail = new TextField();
     private final TextField tfUsername = new TextField();
@@ -39,20 +38,53 @@ public class RegisterApp extends Application {
     private final Button btnRegister = new Button("Đăng ký");
     private final Button btnReset = new Button("Làm lại");
 
-    // ===== Label thông báo lỗi riêng cho từng field =====
+    // ===== Label lỗi riêng =====
     private final Label errFullName = err(), errEmail = err(), errUsername = err(), errPassword = err(),
             errConfirm = err(), errGender = err(), errDob = err(), errMajor = err();
 
     @Override
     public void start(Stage stage) {
-        // Tạm thời hiển thị để kiểm tra khởi tạo Bước 1
-        scene = new Scene(new StackPane(new Label("B3 - Khởi tạo RegisterApp")), 580, 660);
+        // Cấu hình controls
+        setupControls();
+
+        scene = new Scene(new StackPane(new Label("B3 - Đã cấu hình xong controls")), 580, 660);
         stage.setScene(scene);
         stage.setTitle("B3 - Đăng ký & Đăng nhập");
         stage.show();
     }
 
-    // Helper tạo Label lỗi màu đỏ chữ nhỏ 11px
+    // =========================================================================
+    // BƯỚC 2: Cấu hình control & Binding
+    // =========================================================================
+    private void setupControls() {
+        tfFullName.setPromptText("Nguyễn Văn An");
+        tfEmail.setPromptText("abc@example.com");
+        tfUsername.setPromptText("3–20 ký tự: a-z, 0-9, _");
+        pfPassword.setPromptText("≥ 8 ký tự, có hoa, thường, số, ký tự đặc biệt");
+        pfConfirm.setPromptText("Nhập lại mật khẩu");
+
+        // Gom nhóm RadioButton giới tính
+        rbMale.setToggleGroup(tgGender);
+        rbFemale.setToggleGroup(tgGender);
+        rbOther.setToggleGroup(tgGender);
+
+        // Ngày sinh: cấm gõ tay, chỉ cho chọn từ lịch
+        dpDob.setPromptText("Chọn ngày sinh");
+        dpDob.setEditable(false);
+        dpDob.setMaxWidth(Double.MAX_VALUE);
+
+        // Đổ danh sách ngành học vào ComboBox
+        cbMajor.getItems().addAll("Kỹ thuật phần mềm", "Trí tuệ nhân tạo", "An toàn thông tin", "Thiết kế đồ họa");
+        cbMajor.setPromptText("-- Chọn ngành --");
+        cbMajor.setMaxWidth(Double.MAX_VALUE);
+
+        pbStrength.setPrefWidth(140);
+
+        // BINDING: Nút Đăng ký chỉ sáng khi đã tích "Đồng ý điều khoản"
+        btnRegister.disableProperty().bind(chkAgree.selectedProperty().not());
+        btnRegister.setDefaultButton(true);
+    }
+
     private static Label err() {
         Label l = new Label();
         l.setStyle("-fx-text-fill: #d93025; -fx-font-size: 11;");
