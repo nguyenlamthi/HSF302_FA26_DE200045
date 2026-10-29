@@ -6,8 +6,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.Label;
+import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -18,12 +17,10 @@ import java.util.Map;
 
 public class LoginLayoutApp extends Application {
 
-    // Danh sách tài khoản hợp lệ cố định
     private static final Map<String, String> ACCOUNTS = Map.of(
             "admin", "Admin@123",
             "student", "Student@123");
 
-    // Viền đỏ nét đứt dùng để hiển thị ranh giới layout khi bật debug
     private static final Border DEBUG_BORDER = new Border(new BorderStroke(
             Color.RED, BorderStrokeStyle.DASHED, CornerRadii.EMPTY, new BorderWidths(1)));
 
@@ -33,10 +30,9 @@ public class LoginLayoutApp extends Application {
 
     @Override
     public void start(Stage stage) {
-        // Tạm ghép Header và Footer vào BorderPane để kiểm tra Bước 2
         BorderPane root = new BorderPane();
         root.setTop(buildHeader());
-        root.setCenter(new StackPane(new Label("Khu vực Center (sẽ hoàn thiện ở Bước 3 & 4)")));
+        root.setCenter(buildCenter());   // Gắn khu vực Center vào giữa
         root.setBottom(buildFooter());
 
         scene = new Scene(root, 680, 480);
@@ -47,9 +43,6 @@ public class LoginLayoutApp extends Application {
         stage.show();
     }
 
-    // =========================================================================
-    // BƯỚC 2: Header — HBox: logo, tiêu đề, SPACER giãn, version bên phải
-    // =========================================================================
     private Node buildHeader() {
         Label logo = new Label("HSF");
         logo.setStyle("-fx-background-color: #f27024; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 4 8;");
@@ -58,7 +51,6 @@ public class LoginLayoutApp extends Application {
         Label version = new Label("v1.0");
         version.setStyle("-fx-text-fill: #cfd8dc;");
 
-        // Spacer chiếm hết chỗ trống dư thừa -> "đẩy" version dạt sang sát phải
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
@@ -70,8 +62,69 @@ public class LoginLayoutApp extends Application {
     }
 
     // =========================================================================
-    // BƯỚC 2: Footer — HBox: CheckBox debug | spacer | bản quyền
+    // BƯỚC 3: Center — GridPane (form) → VBox (card) → StackPane (căn giữa)
     // =========================================================================
+    private Node buildCenter() {
+        Label lblTitle = new Label("ĐĂNG NHẬP");
+        lblTitle.setStyle("-fx-font-size: 20; -fx-font-weight: bold;");
+
+        TextField tfUser = new TextField(rememberedUser == null ? "" : rememberedUser);
+        tfUser.setPromptText("Username");
+        PasswordField pfPass = new PasswordField();
+        pfPass.setPromptText("Password");
+        CheckBox chkRemember = new CheckBox("Ghi nhớ đăng nhập");
+        chkRemember.setSelected(rememberedUser != null);
+        Label lblError = new Label();
+        lblError.setStyle("-fx-text-fill: #d93025;");
+        lblError.setWrapText(true);
+
+        // 3a. GridPane: cột 0 cố định 80px, cột 1 giãn theo chiều ngang
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.add(new Label("Username"), 0, 0);
+        grid.add(tfUser, 1, 0);
+        grid.add(new Label("Password"), 0, 1);
+        grid.add(pfPass, 1, 1);
+        grid.add(chkRemember, 1, 2);
+
+        ColumnConstraints c0 = new ColumnConstraints(80);
+        ColumnConstraints c1 = new ColumnConstraints();
+        c1.setHgrow(Priority.ALWAYS);
+        grid.getColumnConstraints().addAll(c0, c1);
+
+        // 3b. HBox 2 nút: chia đều 50-50 chiều rộng card
+        Button btnLogin = new Button("Đăng nhập");
+        Button btnExit = new Button("Thoát");
+        btnLogin.setDefaultButton(true);            // Phím Enter
+        btnExit.setCancelButton(true);              // Phím ESC
+        for (Button b : List.of(btnLogin, btnExit)) {
+            b.setMaxWidth(Double.MAX_VALUE);
+            HBox.setHgrow(b, Priority.ALWAYS);
+        }
+        HBox actions = new HBox(10, btnLogin, btnExit);
+
+        // 3c. VBox Card: khung trắng, đổ bóng, rộng tối đa 380px, cao vừa nội dung
+        VBox card = new VBox(14, lblTitle, grid, lblError, actions);
+        card.setAlignment(Pos.TOP_CENTER);
+        card.setPadding(new Insets(24));
+        card.setMaxWidth(380);
+        card.setMaxHeight(Region.USE_PREF_SIZE);    // Giữ chiều cao vừa nội dung
+        card.setStyle("-fx-background-color: white; -fx-background-radius: 8;"
+                + "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 12, 0, 0, 3);");
+
+        // 3d. StackPane tự động căn giữa Card theo cả 2 chiều ngang và dọc
+        StackPane center = new StackPane(card);
+        center.setPadding(new Insets(20));
+        center.setStyle("-fx-background-color: #eceff1;");
+
+        // Theo dõi các container phục vụ vẽ viền debug
+        track(grid);
+        track(actions);
+        track(card);
+        return track(center);
+    }
+
     private Node buildFooter() {
         CheckBox chkDebug = new CheckBox("Hiện viền layout (debug)");
         chkDebug.setOnAction(e -> containers.forEach(
@@ -87,7 +140,6 @@ public class LoginLayoutApp extends Application {
         return track(footer);
     }
 
-    // Helper: đưa container vào danh sách theo dõi debug viền
     private <T extends Region> T track(T region) {
         containers.add(region);
         return region;
