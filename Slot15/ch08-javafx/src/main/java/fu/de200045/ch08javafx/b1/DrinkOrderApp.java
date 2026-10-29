@@ -87,7 +87,6 @@ public class DrinkOrderApp extends Application {
         VBox root = new VBox(12, title, form, buttons, lblResult, new Label("Nhật ký sự kiện:"), taLog);
         root.setPadding(new Insets(16));
 
-        // Gọi đăng ký toàn bộ sự kiện
         registerEvents();
 
         Scene scene = new Scene(root, 540, 580);
@@ -98,20 +97,14 @@ public class DrinkOrderApp extends Application {
         tfName.requestFocus();
     }
 
-    // =========================================================================
-    // BƯỚC 4: Viết registerEvents()
-    // =========================================================================
     private void registerEvents() {
-        // Cách 1: Method reference
         btnCalc.setOnAction(this::handleCalc);
 
-        // Cách 2: Lambda
         btnClear.setOnAction(e -> {
             reset();
             log("Bấm Làm lại");
         });
 
-        // Cách 3: Anonymous class
         cbDrink.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -122,10 +115,8 @@ public class DrinkOrderApp extends Application {
             }
         });
 
-        // TextField: nhấn Enter -> chuyển focus sang ComboBox chọn đồ uống
         tfName.setOnAction(e -> cbDrink.requestFocus());
 
-        // Handler dùng chung cho cả 3 CheckBox qua getSource()
         EventHandler<ActionEvent> onCheck = e -> {
             CheckBox src = (CheckBox) e.getSource();
             log("%s: %s".formatted(src.getText(), src.isSelected() ? "chọn" : "bỏ chọn"));
@@ -134,21 +125,57 @@ public class DrinkOrderApp extends Application {
         chkJelly.setOnAction(onCheck);
         chkLessSugar.setOnAction(onCheck);
 
-        // ChangeListener: Lắng nghe giá trị size thay đổi
         tgSize.selectedToggleProperty().addListener((obs, oldT, newT) -> {
             if (newT != null) log("Đổi size → " + ((RadioButton) newT).getText());
         });
 
-        // ChangeListener: Lắng nghe ô số lượng - chỉ cho gõ tối đa 2 chữ số (chặn chữ)
         tfQty.textProperty().addListener((obs, oldV, newV) -> {
             if (!newV.matches("\\d{0,2}")) tfQty.setText(oldV);
         });
     }
 
+    // =========================================================================
+    // BƯỚC 5: Xử lý chính — đọc giá trị, validate, tính tiền
+    // =========================================================================
     private void handleCalc(ActionEvent e) {
-        log("Bấm nút Tính tiền (Method Reference)");
+        String name = tfName.getText().trim();
+        String drink = cbDrink.getValue();
+        String qtyText = tfQty.getText();
+
+        // 1. Kiểm tra tính hợp lệ (Validation)
+        if (name.isEmpty()) { showError("Vui lòng nhập tên khách"); tfName.requestFocus(); return; }
+        if (drink == null) { showError("Vui lòng chọn đồ uống"); cbDrink.requestFocus(); return; }
+        if (tgSize.getSelectedToggle() == null) { showError("Vui lòng chọn size"); return; }
+        int qty = qtyText.isEmpty() ? 0 : Integer.parseInt(qtyText);
+        if (qty < 1 || qty > 20) { showError("Số lượng từ 1 đến 20"); tfQty.requestFocus(); return; }
+
+        // 2. Tính đơn giá
+        RadioButton size = (RadioButton) tgSize.getSelectedToggle();
+        int unit = MENU.get(drink) + (int) size.getUserData();
+        if (chkPearl.isSelected()) unit += TOPPING_PRICE;
+        if (chkJelly.isSelected()) unit += TOPPING_PRICE;
+
+        // 3. Tính tổng tiền & giảm giá
+        int total = unit * qty;
+        boolean discount = qty >= 5;
+        if (discount) total = total * 90 / 100;
+
+        // 4. Hiển thị kết quả màu xanh lá
+        lblResult.setStyle("-fx-text-fill: #188038; -fx-font-weight: bold;");
+        lblResult.setText("%s: %d × %s size %s%s → %,d đ%s".formatted(
+                name, qty, drink, size.getText().charAt(0),
+                chkLessSugar.isSelected() ? " (ít đường)" : "",
+                total, discount ? " (đã giảm 10%)" : ""));
+        log("Tính tiền: %,d đ".formatted(total));
     }
 
+    private void showError(String msg) {
+        lblResult.setStyle("-fx-text-fill: #d93025;");
+        lblResult.setText(msg);
+        log("Lỗi: " + msg);
+    }
+
+    // Đưa form về trạng thái ban đầu
     private void reset() {
         tfName.clear();
         cbDrink.setValue(null);
