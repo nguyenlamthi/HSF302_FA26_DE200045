@@ -30,17 +30,25 @@ public class LoginLayoutApp extends Application {
 
     @Override
     public void start(Stage stage) {
-        BorderPane root = new BorderPane();
-        root.setTop(buildHeader());
-        root.setCenter(buildCenter());   // Gắn khu vực Center vào giữa
-        root.setBottom(buildFooter());
-
-        scene = new Scene(root, 680, 480);
+        // Khởi tạo Scene với root lấy từ buildLoginView()
+        scene = new Scene(buildLoginView(), 680, 480);
         stage.setScene(scene);
         stage.setTitle("B2 - Layout & Form đăng nhập");
         stage.setMinWidth(480);
         stage.setMinHeight(400);
         stage.show();
+    }
+
+    // =========================================================================
+    // BƯỚC 4: Khung chính — BorderPane 3 vùng top / center / bottom
+    // =========================================================================
+    private Parent buildLoginView() {
+        containers.clear(); // Xóa các container cũ trước khi dựng lại
+        BorderPane root = new BorderPane();
+        root.setTop(buildHeader());
+        root.setCenter(buildCenter());
+        root.setBottom(buildFooter());
+        return track(root);
     }
 
     private Node buildHeader() {
@@ -61,9 +69,6 @@ public class LoginLayoutApp extends Application {
         return track(header);
     }
 
-    // =========================================================================
-    // BƯỚC 3: Center — GridPane (form) → VBox (card) → StackPane (căn giữa)
-    // =========================================================================
     private Node buildCenter() {
         Label lblTitle = new Label("ĐĂNG NHẬP");
         lblTitle.setStyle("-fx-font-size: 20; -fx-font-weight: bold;");
@@ -78,7 +83,6 @@ public class LoginLayoutApp extends Application {
         lblError.setStyle("-fx-text-fill: #d93025;");
         lblError.setWrapText(true);
 
-        // 3a. GridPane: cột 0 cố định 80px, cột 1 giãn theo chiều ngang
         GridPane grid = new GridPane();
         grid.setHgap(10);
         grid.setVgap(10);
@@ -93,32 +97,28 @@ public class LoginLayoutApp extends Application {
         c1.setHgrow(Priority.ALWAYS);
         grid.getColumnConstraints().addAll(c0, c1);
 
-        // 3b. HBox 2 nút: chia đều 50-50 chiều rộng card
         Button btnLogin = new Button("Đăng nhập");
         Button btnExit = new Button("Thoát");
-        btnLogin.setDefaultButton(true);            // Phím Enter
-        btnExit.setCancelButton(true);              // Phím ESC
+        btnLogin.setDefaultButton(true);
+        btnExit.setCancelButton(true);
         for (Button b : List.of(btnLogin, btnExit)) {
             b.setMaxWidth(Double.MAX_VALUE);
             HBox.setHgrow(b, Priority.ALWAYS);
         }
         HBox actions = new HBox(10, btnLogin, btnExit);
 
-        // 3c. VBox Card: khung trắng, đổ bóng, rộng tối đa 380px, cao vừa nội dung
         VBox card = new VBox(14, lblTitle, grid, lblError, actions);
         card.setAlignment(Pos.TOP_CENTER);
         card.setPadding(new Insets(24));
         card.setMaxWidth(380);
-        card.setMaxHeight(Region.USE_PREF_SIZE);    // Giữ chiều cao vừa nội dung
+        card.setMaxHeight(Region.USE_PREF_SIZE);
         card.setStyle("-fx-background-color: white; -fx-background-radius: 8;"
                 + "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 12, 0, 0, 3);");
 
-        // 3d. StackPane tự động căn giữa Card theo cả 2 chiều ngang và dọc
         StackPane center = new StackPane(card);
         center.setPadding(new Insets(20));
         center.setStyle("-fx-background-color: #eceff1;");
 
-        // Theo dõi các container phục vụ vẽ viền debug
         track(grid);
         track(actions);
         track(card);
