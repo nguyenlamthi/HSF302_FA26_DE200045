@@ -1,6 +1,7 @@
 package fu.de200045.ch08javafx.b1;
 
 import javafx.application.Application;
+import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -10,6 +11,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -64,9 +67,7 @@ public class DrinkOrderApp extends Application {
         taLog.setTooltip(new Tooltip("Double-click để xóa nhật ký"));
         btnCalc.setDefaultButton(true);
 
-        // ==========================================
         // TODO 3: Xếp layout
-        // ==========================================
         GridPane form = new GridPane();
         form.setHgap(10);
         form.setVgap(10);
@@ -85,12 +86,33 @@ public class DrinkOrderApp extends Application {
         VBox root = new VBox(12, title, form, buttons, lblResult, new Label("Nhật ký sự kiện:"), taLog);
         root.setPadding(new Insets(16));
 
+        // Đăng ký sự kiện
+        registerEvents();
+
         Scene scene = new Scene(root, 540, 580);
 
         stage.setScene(scene);
         stage.setTitle("B1 - Controls & Sự kiện");
         stage.show();
         tfName.requestFocus();
+    }
+
+    private void registerEvents() {
+        // =========================================================================
+        // TODO 4: Cách 1 — method reference (gọn gàng khi logic nghiệp vụ dài)
+        // =========================================================================
+        btnCalc.setOnAction(this::handleCalc);
+    }
+
+    // Method được tham chiếu bởi this::handleCalc (TODO 4)
+    private void handleCalc(ActionEvent e) {
+        log("Bấm nút Tính tiền (Method Reference)");
+    }
+
+    // Tiện ích ghi nhật ký kèm mốc thời gian HH:mm:ss
+    private void log(String msg) {
+        taLog.appendText("[%s] %s%n".formatted(
+                LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")), msg));
     }
 
     public static void main(String[] args) {
