@@ -11,6 +11,9 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
+import java.time.LocalDate;
+import java.time.Period;
+
 public class RegisterApp extends Application {
 
     private static final String STRONG_PASSWORD = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^\\w\\s]).{8,}$";
@@ -81,9 +84,6 @@ public class RegisterApp extends Application {
         btnRegister.setDefaultButton(true);
     }
 
-    // =========================================================================
-    // BƯỚC 3: Giao diện — GridPane 2 cột, mỗi ô nhập kèm label lỗi bên dưới
-    // =========================================================================
     private Parent buildRegisterView() {
         GridPane grid = new GridPane();
         grid.setHgap(12);
@@ -93,7 +93,6 @@ public class RegisterApp extends Application {
         addField(grid, r++, "Email *", tfEmail, errEmail);
         addField(grid, r++, "Username *", tfUsername, errUsername);
 
-        // Thanh đo độ mạnh mật khẩu đặt cùng hàng dưới ô password
         HBox strength = new HBox(8, pbStrength, lblStrength);
         strength.setAlignment(Pos.CENTER_LEFT);
         addField(grid, r++, "Mật khẩu *", new VBox(4, pfPassword, strength), errPassword);
@@ -121,21 +120,84 @@ public class RegisterApp extends Application {
         VBox form = new VBox(12, title, grid, chkAgree, actions, linkLogin);
         form.setPadding(new Insets(20));
 
-        ScrollPane sp = new ScrollPane(form);   // Giữ cho form luôn cuộn được, không bị cắt xén
+        ScrollPane sp = new ScrollPane(form);
         sp.setFitToWidth(true);
         return sp;
     }
 
-    // Helper: đưa ô nhập và nhãn lỗi tương ứng vào 1 ô lưới
     private void addField(GridPane grid, int row, String label, Node input, Label error) {
         Label lbl = new Label(label);
         lbl.setPadding(new Insets(4, 0, 0, 0));
-        GridPane.setValignment(lbl, VPos.TOP);  // Canh nhãn theo dòng đầu tiên của ô nhập
+        GridPane.setValignment(lbl, VPos.TOP);
         grid.add(lbl, 0, row);
         grid.add(error == null ? input : new VBox(2, input, error), 1, row);
     }
 
-    // Tạm tạo stub đăng nhập để Bước 3 biên dịch hoàn hảo
+    // =========================================================================
+    // BƯỚC 4: Các hàm Validator vXxx() & Đánh giá độ mạnh mật khẩu
+    // =========================================================================
+    // Helper: gán lỗi nếu không ok, trả về boolean kết quả
+    private boolean check(Label err, boolean ok, String msg) {
+        err.setText(ok ? "" : msg);
+        return ok;
+    }
+
+    private boolean vFullName() {
+        return check(errFullName, tfFullName.getText().trim().matches("[\\p{L}\\p{M} ]{3,50}"),
+                "Họ tên 3–50 ký tự, chỉ gồm chữ cái và khoảng trắng");
+    }
+
+    private boolean vEmail() {
+        return check(errEmail, tfEmail.getText().trim().matches("^[\\w.+-]+@[\\w-]+(\\.[\\w-]+)+$"),
+                "Email không hợp lệ (VD: abc@example.com)");
+    }
+
+    private boolean vUsername() {
+        String u = tfUsername.getText().trim().toLowerCase();
+        if (!u.matches("[a-z0-9_]{3,20}"))
+            return check(errUsername, false, "Username 3–20 ký tự: chữ thường, số, dấu _");
+        return check(errUsername, !UserStore.exists(u), "Username đã tồn tại");
+    }
+
+    private boolean vPassword() {
+        return check(errPassword, pfPassword.getText().matches(STRONG_PASSWORD),
+                "Mật khẩu ≥ 8 ký tự, gồm chữ hoa, chữ thường, số và ký tự đặc biệt");
+    }
+
+    private boolean vConfirm() {
+        String c = pfConfirm.getText();
+        return check(errConfirm, !c.isEmpty() && c.equals(pfPassword.getText()), "Mật khẩu xác nhận không khớp");
+    }
+
+    private boolean vGender() {
+        return check(errGender, tgGender.getSelectedToggle() != null, "Vui lòng chọn giới tính");
+    }
+
+    private boolean vDob() {
+        LocalDate d = dpDob.getValue();
+        if (d == null) return check(errDob, false, "Vui lòng chọn ngày sinh");
+        if (d.isAfter(LocalDate.now())) return check(errDob, false, "Ngày sinh không được ở tương lai");
+        return check(errDob, Period.between(d, LocalDate.now()).getYears() >= 16, "Phải đủ 16 tuổi trở lên");
+    }
+
+    private boolean vMajor() {
+        return check(errMajor, cbMajor.getValue() != null, "Vui lòng chọn ngành");
+    }
+
+    // Đánh giá độ mạnh mật khẩu từ 0 đến 4 điểm
+    private void updateStrength(String s) {
+        int score = 0;
+        if (s.length() >= 8) score++;
+        if (s.matches(".*[a-z].*") && s.matches(".*[A-Z].*")) score++;
+        if (s.matches(".*\\d.*")) score++;
+        if (s.matches(".*[^\\w\\s].*")) score++;
+
+        pbStrength.setProgress(score / 4.0);
+        pbStrength.setStyle("-fx-accent: " + LEVEL_COLOR[score] + ";");   // Đổi màu thanh tiến trình
+        lblStrength.setText(s.isEmpty() ? "" : LEVEL_TEXT[score]);
+        lblStrength.setStyle("-fx-text-fill: " + LEVEL_COLOR[score] + ";");
+    }
+
     private Parent buildLoginView(String prefillUser) {
         return new StackPane(new Label("Màn hình đăng nhập (sẽ hoàn thiện ở Bước 6)"));
     }
