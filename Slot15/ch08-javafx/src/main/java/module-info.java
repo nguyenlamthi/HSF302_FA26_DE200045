@@ -11,7 +11,7 @@ module fu.de200045.ch08javafx {
      exports fu.de200045.ch08javafx.common;
      exports fu.de200045.ch08javafx.b1;
      exports fu.de200045.ch08javafx.b2;
-    // exports fu.de200045.ch08javafx.b3;
+     exports fu.de200045.ch08javafx.b3;
     // opens fu.de200045.ch08javafx.b4 to javafx.fxml;
     // exports fu.de200045.ch08javafx.b4;
     // opens fu.de200045.ch08javafx.b5 to javafx.fxml;
