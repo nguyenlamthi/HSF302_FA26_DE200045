@@ -1,0 +1,43 @@
+/* Background chuyển màu từ trắng xuống xanh nhạt */
+.login-pane {
+    -fx-background-color: linear-gradient(to bottom, #ffffff, #e8f0fe);
+    -fx-font-family: "Segoe UI";
+}
+
+/* Tiêu đề ĐĂNG NHẬP màu xanh Google */
+.title {
+    -fx-font-size: 22;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1a73e8;
+}
+
+/* Thông báo lỗi màu đỏ */
+.error {
+    -fx-text-fill: #d93025;
+}
+
+/* Khi bấm chuột vào ô nhập thì viền sáng màu xanh */
+.text-field:focused, .password-field:focused {
+    -fx-border-color: #1a73e8;
+    -fx-border-radius: 3;
+}
+
+/* Nút Đăng nhập bo góc, con trỏ bàn tay */
+.primary-btn {
+    -fx-background-color: #1a73e8;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-padding: 8 18;
+    -fx-background-radius: 5;
+    -fx-cursor: hand;
+}
+
+/* Hiệu ứng khi rê chuột vào nút: màu xanh đậm hơn */
+.primary-btn:hover {
+    -fx-background-color: #1558b0;
+}
+
+/* Hiệu ứng khi nút bị disable: mờ 50% */
+.primary-btn:disabled {
+    -fx-opacity: 0.5;
+}
