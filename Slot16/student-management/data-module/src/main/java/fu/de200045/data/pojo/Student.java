@@ -1,4 +1,4 @@
-package fu.de200045.pojo;
+package fu.de200045.data.pojo;
 
 import jakarta.persistence.*;
 import org.hibernate.annotations.Nationalized;
