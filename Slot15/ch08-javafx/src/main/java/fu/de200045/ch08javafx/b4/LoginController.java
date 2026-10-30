@@ -4,8 +4,13 @@ import fu.de200045.ch08javafx.common.AlertUtil;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.util.Map;
 
 public class LoginController {
@@ -78,8 +83,7 @@ public class LoginController {
         }
 
         lblError.setText("");
-        // Tạm thời hiển thị Alert đăng nhập thành công (Bước 5 sẽ mở cửa sổ Welcome FXML)
-        AlertUtil.info("Đăng nhập thành công!\nXin chào %s (%s)".formatted(user, role));
+        openWelcome(user, role, (Stage) btnLogin.getScene().getWindow());
     }
 
     @FXML
@@ -93,5 +97,23 @@ public class LoginController {
                 AlertUtil.warn("Email không hợp lệ");
             }
         });
+    }
+
+    // Mở FXML thứ 2 và TRUYỀN DỮ LIỆU qua controller
+    private void openWelcome(String user, String role, Stage loginStage) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("welcome-view.fxml"));
+            Parent root = loader.load();
+            WelcomeController ctrl = loader.getController();
+            ctrl.setUser(user, role); // Truyền thông tin sang màn hình thứ hai
+
+            Stage stage = new Stage();
+            stage.setTitle("Chào mừng");
+            stage.setScene(new Scene(root, 360, 200));
+            stage.show();
+            loginStage.close(); // Đóng cửa sổ đăng nhập cũ lại
+        } catch (IOException ex) {
+            AlertUtil.error("Không mở được màn hình chào mừng: " + ex.getMessage());
+        }
     }
 }
