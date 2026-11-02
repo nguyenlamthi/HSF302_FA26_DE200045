@@ -34,7 +34,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>com.example.ui.Launcher</mainClass>
+                    <mainClass>fu.de200045.ui.Launcher</mainClass>
                 </configuration>
             </plugin>
         </plugins>
