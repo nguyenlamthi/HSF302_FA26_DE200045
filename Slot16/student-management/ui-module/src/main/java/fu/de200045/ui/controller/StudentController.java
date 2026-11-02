@@ -1,5 +1,7 @@
 package fu.de200045.ui.controller;
 
+import fu.de200045.data.exception.StudentNotFoundException;
+import fu.de200045.data.exception.ValidationException;
 import fu.de200045.data.pojo.Student;
 import fu.de200045.data.service.StudentService;
 import javafx.collections.FXCollections;
@@ -9,6 +11,7 @@ import javafx.scene.control.*;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 
 @Component
 public class StudentController {
@@ -21,7 +24,7 @@ public class StudentController {
     // TODO 5.1: Danh sách quan sát duy nhất cho TableView
     private final ObservableList<Student> data = FXCollections.observableArrayList();
 
-    private final StudentService studentService;   // INTERFACE, không phải StudentServiceImpl
+    private final StudentService studentService;   // Phụ thuộc INTERFACE, không phải Impl
 
     public StudentController(StudentService studentService) {
         this.studentService = studentService;
@@ -76,6 +79,103 @@ public class StudentController {
         loadData();
     }
 
+    // TODO 6.1: Đọc dữ liệu từ form, kiểm tra age là số, trả về Student
+    private Student readForm() {
+        String name = nameField.getText();
+        String email = emailField.getText();
+        String ageText = ageField.getText();
+
+        if (ageText == null || ageText.trim().isEmpty()) {
+            throw new ValidationException("Age is required");
+        }
+
+        Integer age;
+        try {
+            age = Integer.parseInt(ageText.trim());
+        } catch (NumberFormatException e) {
+            throw new ValidationException("Age must be a number");
+        }
+
+        return new Student(name, email, age);
+    }
+
+    // TODO 6.2: Thêm mới sinh viên
+    @FXML
+    private void handleAdd() {
+        try {
+            Student student = readForm();
+            Student created = studentService.create(student);
+            showInfo("Added: " + created.getName());
+            handleClear();
+            loadData();
+        } catch (ValidationException | StudentNotFoundException e) {
+            showError(e.getMessage());
+        } catch (Exception e) {
+            showError("System error: " + e.getMessage());
+        }
+    }
+
+    // TODO 6.3: Cập nhật sinh viên (không sửa trực tiếp object đang chọn)
+    @FXML
+    private void handleUpdate() {
+        Student selected = tableView.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            return;
+        }
+
+        try {
+            Student edit = readForm();
+            edit.setId(selected.getId());
+            Student updated = studentService.update(edit);
+            showInfo("Updated: " + updated.getName());
+            handleClear();
+            loadData();
+        } catch (ValidationException | StudentNotFoundException e) {
+            showError(e.getMessage());
+        } catch (Exception e) {
+            showError("System error: " + e.getMessage());
+        }
+    }
+
+    // TODO 6.4: Xoá sinh viên kèm hộp thoại xác nhận CONFIRMATION
+    @FXML
+    private void handleDelete() {
+        Student selected = tableView.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            return;
+        }
+
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Confirm Deletion");
+        alert.setHeaderText(null);
+        alert.setContentText("Delete student \"" + selected.getName() + "\"?");
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            try {
+                studentService.delete(selected.getId());
+                showInfo("Deleted: " + selected.getName());
+                handleClear();
+                loadData();
+            } catch (ValidationException | StudentNotFoundException e) {
+                showError(e.getMessage());
+            } catch (Exception e) {
+                showError("System error: " + e.getMessage());
+            }
+        }
+    }
+
+    // TODO 6.5: Xoá trắng form, bỏ chọn dòng và focus vào ô Name
+    @FXML
+    private void handleClear() {
+        idField.clear();
+        nameField.clear();
+        emailField.clear();
+        ageField.clear();
+        tableView.getSelectionModel().clearSelection();
+        nameField.requestFocus();
+    }
+
     // TODO 5.5: Điền thông tin sinh viên được chọn vào form
     private void fillForm(Student s) {
         if (s != null) {
@@ -91,20 +191,15 @@ public class StudentController {
         }
     }
 
-    // TODO 5.5: Hiển thị thông báo thành công (màu xanh)
+    // Hiển thị thông báo thành công (màu xanh lá)
     private void showInfo(String message) {
         messageLabel.setStyle("-fx-text-fill: green;");
         messageLabel.setText(message);
     }
 
-    // TODO 5.5: Hiển thị thông báo lỗi (màu đỏ)
+    // Hiển thị thông báo lỗi (màu đỏ)
     private void showError(String message) {
         messageLabel.setStyle("-fx-text-fill: red;");
         messageLabel.setText(message);
     }
-
-    @FXML private void handleAdd()     { }
-    @FXML private void handleUpdate()  { }
-    @FXML private void handleDelete()  { }
-    @FXML private void handleClear()   { }
 }
